@@ -1,0 +1,2 @@
+export const access = 'scheduler';
+import {refreshBatch} from 'lib/check.js';export const methods=['POST'];export default async function(req,res){const rows=await refreshBatch();res.json({count:rows.length,ok:rows.filter(x=>x.verification!=='unverified').length,rows})}

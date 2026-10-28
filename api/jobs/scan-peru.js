@@ -1,0 +1,1 @@
+export const access='scheduler';export const methods=['POST'];import{scanCountry}from'lib/market-scan.js';export default async function(req,res){const result=await scanCountry('PE');res.json(result)}
