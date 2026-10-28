@@ -20,8 +20,20 @@ async function snapshot(country,city,page=1){
    ORDER BY pokemon_signal DESC,last_seen DESC,name ASC
    LIMIT 40 OFFSET $${city?3:2}`,[...args,Math.max(0,page-1)*40])
  ]);
- const checks=results.rows.length?await db.query('SELECT shop_id,website_reachable,website_checked_at,website_note,published_contact,published_conditions,published_identity,verification_level,independent_sources,last_checked_at FROM discovered_shop_evidence WHERE shop_id=ANY($1::text[])',[results.rows.map(x=>x.id)]):{rows:[]};
+ const ids=results.rows.map(x=>x.id);
+ const [checks,queue,provenance]=ids.length?await Promise.all([
+  db.query('SELECT shop_id,website_reachable,website_checked_at,website_note,published_contact,published_conditions,published_identity,verification_level,independent_sources,last_checked_at FROM discovered_shop_evidence WHERE shop_id=ANY($1::text[])',[ids]),
+  db.query('SELECT shop_id,status,attempts,next_attempt,last_error FROM research_verify_queue WHERE shop_id=ANY($1::text[])',[ids]),
+  db.query('SELECT shop_id,provider,source_url FROM research_candidate_sources WHERE shop_id=ANY($1::text[]) ORDER BY last_seen DESC LIMIT 160',[ids])
+ ]):[{rows:[]},{rows:[]},{rows:[]}];
  const checkById=new Map(checks.rows.map(x=>[x.shop_id,x]));
+ const queueById=new Map(queue.rows.map(x=>[x.shop_id,x]));
+ const discoveryById=new Map();
+ for(const p of provenance.rows){
+  const sources=discoveryById.get(p.shop_id)||[];
+  if(sources.length<8)sources.push({label:p.provider,url:p.source_url});
+  discoveryById.set(p.shop_id,sources);
+ }
  const data=results.rows.map(s=>{
   const verification=checkById.get(s.id)||null;
   const sources=Array.isArray(verification?.independent_sources)?verification.independent_sources:[];
@@ -37,7 +49,10 @@ async function snapshot(country,city,page=1){
    sources:sources.map(x=>({label:x.label,url:x.url,type:'tercero'})),
    review:null,recommended:documented,confidence:documented?'moderada':'no evaluada'
   };
-  return {...s,trust,verification,discovery:'researched',selected:s.review_status==='needs_review',approvedHost:false,autoEnabled:false,
+  const checkTask=queueById.get(s.id)||null;
+  return {...s,trust,verification,discoverySources:discoveryById.get(s.id)||[],queueStatus:checkTask?.status||(verification?.last_checked_at?'done':'not_queued'),
+   queueAttempts:checkTask?.attempts||0,queueNextAttempt:checkTask?.next_attempt||null,
+   discovery:'researched',selected:false,approvedHost:false,autoEnabled:false,
    products:0,preorders:0,other:0,pokemon:0,unclassified:0,
    storeType:s.store_type,scanStatus:'not_registered',badge:documented?'green':'yellow',
    sourceUrl:s.source_url,typeLabel:s.shop_kind==='games'?'Juegos y cartas':'Comercio relacionado',
