@@ -1,30 +1,19 @@
-# Preparación del repositorio público
+# Preparación y sincronización GitHub
 
-La conexión GitHub actual permite leer la identidad de la cuenta y escribir archivos en repositorios autorizados, pero **no permite crear un repositorio nuevo** por sí sola.
+Repositorio público: https://github.com/David079-06/TGC-Atlas
 
-1. Ir a https://github.com/new e indicar `pokemon-tcg-atlas`.
-2. Visibilidad: **Public**. No guardar secretos, archivos de entorno ni datos de la base de datos.
-3. Inicializar con `README.md` o dejar vacío; la publicación debe adaptarse a la rama que quede creada.
-4. Entrar en https://github.com/settings/installations y otorgar al conector utilizado permiso para este repositorio (preferiblemente solo este).
-5. Confirmar que el repositorio aparece en las herramientas GitHub de la conversación antes de cualquier subida.
+La integración de GitHub dispone de acceso de escritura y se han publicado commits convencionales. **GitHub no es la fuente automática de despliegue**: el sitio operativo permanece en Hatchable.
 
-## Propuesta de commits iniciales
+## Flujo de actualizaciones
+1. Modificar el proyecto Hatchable.
+2. Revisar cambios, credenciales y privacidad.
+3. Ejecutar `dry_run_deploy` y pruebas de API/frontend.
+4. Publicar la versión en Hatchable y comprobarla.
+5. Sincronizar los archivos afectados al repositorio con un commit convencional, sin sobrescribir trabajo remoto de terceros.
+6. Confirmar el resultado del commit y la versión desplegada.
 
-- `chore(repo): initial Hatchable source snapshot`
-- `refactor(core): separate store validation and presenter modules`
-- `refactor(ui): extract scan progress component and styles`
-- `test(api): add private diagnostics endpoint`
-- `docs: document architecture security and contribution rules`
+El repositorio es público pero la aplicación y su base de datos siguen privadas. No exportar datos de usuario, tokens ni respaldos SQL.
 
-Para cambios posteriores, cada unidad funcional debe tener su commit; un cambio aislado en documentación no debe mezclar cambios de lógica. Los mensajes de despliegue de Hatchable no son commits de GitHub.
+El historial utiliza `feat`, `fix`, `refactor`, `test`, `docs`, `chore` y `security` según la naturaleza del cambio.
 
-## Exclusiones de una publicación
-
-- Nunca incluir claves, contraseñas, `.env`, cookies, exportaciones SQL con datos reales ni contenido privado de usuarios.
-- No confundir migraciones del esquema (sí) con volcados de la base de datos (no).
-- `AGENTS.md` de Hatchable es un manifiesto autogenerado y no forma parte del código necesario para ejecutar la aplicación.
-- Mantener avisos/licencias de Leaflet, OpenStreetMap y datos geográficos según corresponda.
-
-## Sincronización futura
-
-Una actualización en Hatchable se versionará en GitHub **cuando** la integración tenga acceso al repositorio y se ejecute una operación explícita de sincronización. No existe sincronización continua o en segundo plano configurada en este proyecto.
+Las futuras actualizaciones que realicemos en esta conversación pueden acompañarse de sus commits, pero **no hay sincronización automática continua** sin una integración adicional.
