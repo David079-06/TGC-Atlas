@@ -4,3 +4,12 @@ name = "TCG Atlas · Tiendas reales"
 [[cron]]
 path = "/api/jobs/stores-sweep"
 schedule = "0 * * * *"
+
+[[cron]]
+path = "/api/jobs/research-maintenance"
+schedule = "15 * * * *"
+
+[[secret]]
+name = "BRAVE_SEARCH_API_KEY"
+required = false
+description = "Opcional: habilita búsqueda comercial de tiendas mediante la API oficial de Brave Search. Se configura desde Setup; nunca se publica la clave."
