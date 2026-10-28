@@ -1,0 +1,1 @@
+export const access='scheduler';import{collectWoo}from'lib/collect.js';export const methods=['POST'];export default async function(req,res){res.json([await collectWoo('okami','https://okamidex.pe',{category:40,startPage:5,endPage:6})])}

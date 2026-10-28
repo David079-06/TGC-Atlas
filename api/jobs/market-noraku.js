@@ -1,0 +1,1 @@
+export const access='scheduler';export const methods=['POST'];import {collectShop} from 'lib/collect.js';export default async function(req,res){res.json(await collectShop('noraku','noraku.es',2))}

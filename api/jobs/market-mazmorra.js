@@ -1,0 +1,1 @@
+export const access='scheduler';export const methods=['POST'];import {collectWoo} from 'lib/collect.js';export default async function(req,res){res.json(await collectWoo('mazmorra','https://lamazmorratcg.com',{pages:3}))}
