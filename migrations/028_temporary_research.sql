@@ -1,0 +1,2 @@
+-- Research candidates are temporary, not entries in the owner's private store list.
+ALTER TABLE discovered_shops ADD COLUMN IF NOT EXISTS expires_at TIMESTAMPTZ NOT NULL DEFAULT (NOW() + INTERVAL '24 hours');

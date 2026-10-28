@@ -1,0 +1,6 @@
+name = "TCG Atlas · Tiendas reales"
+
+
+[[cron]]
+path = "/api/jobs/stores-sweep"
+schedule = "0 * * * *"

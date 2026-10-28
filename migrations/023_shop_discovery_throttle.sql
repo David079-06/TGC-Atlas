@@ -1,0 +1,4 @@
+CREATE TABLE IF NOT EXISTS shop_discovery_throttle (
+ id SMALLINT PRIMARY KEY CHECK(id=1), last_called TIMESTAMPTZ NOT NULL DEFAULT '2000-01-01'
+);
+INSERT INTO shop_discovery_throttle(id) VALUES(1) ON CONFLICT DO NOTHING;
