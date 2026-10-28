@@ -1,0 +1,1 @@
+CREATE TABLE IF NOT EXISTS forex_checks (id BIGSERIAL PRIMARY KEY, base_currency TEXT NOT NULL, quote_currency TEXT NOT NULL, rate NUMERIC(12,8) NOT NULL, source TEXT NOT NULL, source_time TEXT, checked_at TIMESTAMPTZ NOT NULL DEFAULT NOW())

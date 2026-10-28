@@ -1,0 +1,1 @@
+CREATE TABLE IF NOT EXISTS news_checks (id BIGSERIAL PRIMARY KEY, headline TEXT NOT NULL, source TEXT, article_url TEXT NOT NULL, published_at TIMESTAMPTZ, topic TEXT NOT NULL, evidence TEXT NOT NULL DEFAULT 'aggregated_unverified', checked_at TIMESTAMPTZ NOT NULL DEFAULT NOW())

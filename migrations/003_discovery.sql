@@ -1,0 +1,1 @@
+CREATE TABLE IF NOT EXISTS candidate_checks (id BIGSERIAL PRIMARY KEY, shop_id TEXT NOT NULL, country CHAR(2) NOT NULL, external_id TEXT NOT NULL, title TEXT NOT NULL, lang TEXT, product_url TEXT NOT NULL, price NUMERIC(12,2), currency CHAR(3), availability TEXT, evidence TEXT, checked_at TIMESTAMPTZ NOT NULL DEFAULT NOW())

@@ -1,0 +1,1 @@
+CREATE TABLE IF NOT EXISTS market_offer_history (id BIGSERIAL PRIMARY KEY, merchant TEXT NOT NULL, external_id TEXT NOT NULL, currency TEXT NOT NULL, price NUMERIC, available BOOLEAN, stock_quantity INTEGER, checked_at TIMESTAMPTZ NOT NULL DEFAULT NOW())

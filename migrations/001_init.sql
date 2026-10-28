@@ -1,0 +1,1 @@
+CREATE TABLE IF NOT EXISTS snapshots (id BIGSERIAL PRIMARY KEY, sku TEXT NOT NULL, store TEXT NOT NULL, title TEXT NOT NULL, url TEXT NOT NULL, lang TEXT, pen NUMERIC, currency TEXT DEFAULT 'PEN', stock_status TEXT NOT NULL DEFAULT 'unknown', stock_qty INTEGER, checked_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), verification TEXT NOT NULL DEFAULT 'unverified', note TEXT)
