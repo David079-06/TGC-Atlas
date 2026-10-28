@@ -1,0 +1,51 @@
+/* TCG Atlas · Tiendas, reputación verificable (no catálogo en esta ventana) */
+#store-app .store-item-row{align-items:start;gap:10px}
+#store-app .store-item-row strong{line-height:1.4}
+#store-app .store-item-row .store-tag{white-space:normal;text-align:right;font-size:10px;line-height:1.3;padding:6px 8px}
+#store-app .trust-list-meta{display:flex;flex-direction:column;align-items:flex-start;gap:7px;max-width:100%;padding-top:4px}
+#store-app .trust-list-meta span:first-child{font-size:11px;line-height:1.5;color:#6b8496;font-weight:450;overflow-wrap:anywhere}
+#store-app .trust-list-meta span:last-child:not(:first-child){font-size:10px;color:#315f81;font-weight:700}
+#store-app .trust-legend{display:flex;flex-wrap:wrap;align-items:center;gap:14px;margin:13px 0 17px;font-size:10px;color:#6d8190}
+#store-app .trust-dot{font-size:14px;margin-right:4px}
+#store-app .trust-dot.good{color:#18a376}
+#store-app .trust-dot.warn{color:#dfa641}
+#store-app .trust-dot.risk{color:#d35a59}
+#store-app .store-audit-status{margin:11px 0 16px;padding:10px 13px;background:#f5f9fc;border:1px solid #e2edf4;border-radius:9px;color:#647f91;font-size:11px;line-height:1.55}
+#store-app .store-recs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
+#store-app .trust-rec{display:flex;align-items:center;gap:12px;text-align:left;min-height:111px;padding:17px 16px;border:1px solid #d9e7ee;background:#fcfeff;border-radius:13px}
+#store-app .trust-rec:hover{background:#f4fafc;border-color:#b3d6e7}
+#store-app .trust-rec .store-rec-num{color:#8da7b7;font-size:17px;font-weight:800;flex:0 0 auto}
+#store-app .trust-rec-content{min-width:0;flex:1;display:flex;flex-direction:column;gap:6px}
+#store-app .trust-rec-content>b{color:#213f56;font-size:14px}
+#store-app .trust-rec-content>small{font-size:10px;color:#417a65;font-weight:700}
+#store-app .trust-rec-note{display:block;font-size:10px;line-height:1.5;color:#7690a1;font-weight:450}
+#store-app .trust-rec-rating{font-size:12px;color:#24668a;font-weight:800;max-width:142px;text-align:right;overflow-wrap:anywhere}
+#store-app .trust-rec-rating small{display:block;margin-top:5px;font-size:9px;font-weight:500;color:#7c91a3}
+#store-app .trust-verdict{border-radius:12px;padding:17px 18px;margin:16px 0 18px}
+#store-app .trust-verdict strong{font-size:15px}
+#store-app .trust-verdict p{font-size:12px;line-height:1.7;margin:7px 0}
+#store-app .trust-verdict small{font-size:10px;line-height:1.5}
+#store-app .trust-positive{border:1px solid #c6e5d8;background:#f4fbf7;color:#21654d}
+#store-app .trust-caution{border:1px solid #f0dfb5;background:#fffcf4;color:#7c5e26}
+#store-app .trust-negative{border:1px solid #f0cdcd;background:#fff7f6;color:#a34849}
+#store-app .trust-source-list{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}
+#store-app .trust-source{padding:9px 10px;border-radius:8px;border:1px solid #d5e5ed;background:#f5fafc;color:#2c6b91;font-size:10px;line-height:1.4}
+#store-app .trust-source:hover{background:#e7f3f9}
+#store-app .trust-evidence{display:flex;flex-direction:column;gap:17px}
+#store-app .trust-evidence>b,#store-app .trust-evidence div>b{font-size:12px}
+#store-app .trust-evidence ul{padding-left:17px;margin:8px 0 0}
+#store-app .trust-evidence li{color:#5e798d;font-size:11px;line-height:1.7;margin:0 0 5px}
+#store-app .store-detail-analysis h4{font-size:12px;margin:16px 0 8px}
+#store-app .trust-footer-note{margin-top:17px;padding:15px 16px;background:#f5f9fc;border:1px solid #e3edf4;border-radius:10px;font-size:11px;line-height:1.7;color:#758b9d}
+#store-app .store-detail-info dd small{display:block;font-size:10px;color:#7f94a3;margin-top:4px;line-height:1.5}
+#store-app .store-detail-info dd a{font-size:11px}
+@media(max-width:1050px){#store-app .store-recs{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:600px){
+ #store-app .store-recs{grid-template-columns:minmax(0,1fr)}
+ #store-app .trust-rec{padding:14px 12px;flex-wrap:wrap}
+ #store-app .trust-rec-rating{margin-left:auto}
+ #store-app .trust-verdict{padding:13px 14px}
+ #store-app .store-item-row .store-tag{max-width:56%}
+ #store-app .trust-source{width:100%}
+ #store-app .trust-legend{gap:7px 12px}
+}

@@ -1,0 +1,60 @@
+/* Panel de avance autónomo: etapas, porcentaje y últimas verificaciones */
+#store-app .store-investigation-status{background:linear-gradient(135deg,#fff 0%,#f2f9fe 100%);border:1px solid #cddfe9;padding:20px 22px;border-radius:16px}
+#store-app .scan-top{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
+#store-app .scan-heading{min-width:0;flex:1}
+#store-app .scan-eyebrow{font-size:10px;letter-spacing:1px;color:#5e849d;font-weight:750}
+#store-app .scan-heading h3{color:#193d57;margin:6px 0;font-size:19px}
+#store-app .scan-heading p{font-size:11px;color:#68849a;line-height:1.55;margin:0;max-width:780px}
+#store-app .scan-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+#store-app .scan-actions button{border:1px solid #d5e2ec;background:#fff;color:#306b91;padding:9px 13px;border-radius:9px;font-size:11px;font-weight:720;cursor:pointer}
+#store-app .scan-live{display:inline-flex;align-items:center;gap:7px;color:#37755c;background:#edf8f1;border:1px solid #c7e5d3;border-radius:999px;padding:8px 10px;font-size:10px;font-weight:750;white-space:nowrap}
+#store-app .scan-live i{display:block;width:7px;height:7px;border-radius:50%;background:#42a77f}
+#store-app .scan-live.is-active i{animation:tcg-scan-pulse 1.6s infinite}
+@keyframes tcg-scan-pulse{0%,100%{opacity:1;box-shadow:0 0 0 0 #48aa7b44}65%{opacity:.5;box-shadow:0 0 0 5px #48aa7b00}}
+#store-app .scan-overview{display:flex;align-items:center;gap:22px;margin:18px 0;padding:15px 16px;background:#fff;border:1px solid #e0edf4;border-radius:13px}
+#store-app .scan-ring{--pct:0;display:grid;place-items:center;width:90px;height:90px;flex-shrink:0;border-radius:50%;background:conic-gradient(#3d97c2 calc(var(--pct)*1%),#e8f0f5 0)}
+#store-app .scan-ring>div{width:72px;height:72px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-direction:column;background:#fff}
+#store-app .scan-ring b{font-size:24px;color:#1a526e;line-height:1.2;font-variant-numeric:tabular-nums}
+#store-app .scan-ring small{font-size:9px;color:#8198a9}
+#store-app .scan-numbers{flex:1;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+#store-app .scan-numbers>div{display:flex;flex-direction:column;gap:5px}
+#store-app .scan-numbers b{font-size:23px;line-height:1.1;color:#203d54;font-variant-numeric:tabular-nums}
+#store-app .scan-numbers span{font-size:10px;color:#8095a5}
+#store-app .scan-steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px}
+#store-app .scan-step{border:1px solid #dfe8ef;background:#fff;border-radius:11px;padding:12px}
+#store-app .scan-step.current{border-color:#83bbdb;background:#f0f8fe}
+#store-app .scan-step.complete{border-color:#c5e5d7;background:#f6fcf8}
+#store-app .scan-step-head{display:flex;align-items:center;gap:7px;min-height:23px}
+#store-app .scan-step-icon{width:20px;height:20px;border-radius:50%;display:grid;place-items:center;background:#e8eef3;color:#66839a;font-size:11px;font-weight:700;flex-shrink:0}
+#store-app .scan-step.current .scan-step-icon{color:#fff;background:#348ab8}
+#store-app .scan-step.complete .scan-step-icon{color:#fff;background:#40a17a}
+#store-app .scan-step strong{font-size:11px;color:#3a5366;flex:1}
+#store-app .scan-step-head small{font-size:10px;color:#65839b}
+#store-app .scan-line{width:100%;height:6px;border-radius:8px;background:#e7edf2;overflow:hidden;margin:12px 0 7px}
+#store-app .scan-line>span{display:block;height:100%;border-radius:8px;background:#4798c4;transition:width .5s ease}
+#store-app .scan-step.complete .scan-line>span{background:#43a27c}
+#store-app .scan-step-sub{font-size:10px;color:#859aaa}
+#store-app .scan-activity{margin-top:14px;background:#fff;border:1px solid #e0eaf1;border-radius:11px;padding:14px 15px}
+#store-app .scan-activity>div:first-child{display:flex;align-items:center;justify-content:space-between;gap:10px}
+#store-app .scan-activity strong{color:#294d68;font-size:11px}
+#store-app .scan-activity>div>small{color:#8aa0b1;font-size:10px}
+#store-app .scan-activity ul{margin:10px 0 0;padding:0;list-style:none}
+#store-app .scan-activity li{display:flex;align-items:center;gap:9px;padding:8px 0;border-top:1px solid #eef2f5}
+#store-app .scan-activity li>span:nth-child(2){display:flex;flex:1;flex-direction:column;gap:4px;min-width:0}
+#store-app .scan-activity li b{font-size:11px;color:#365366}
+#store-app .scan-activity li small,#store-app .scan-activity time{color:#849bae;font-size:10px}
+#store-app .scan-activity time{white-space:nowrap}
+#store-app .scan-event-dot{display:block;height:8px;width:8px;flex-shrink:0;border-radius:50%;background:#e5ad58}
+#store-app .scan-event-dot.good{background:#48a783}
+#store-app .scan-none{font-size:11px;color:#859ba8;margin:10px 0 0}
+#store-app .scan-footnote{margin:11px 0 0;color:#7b94a6;font-size:10px;line-height:1.6}
+#store-app .store-autoscan-label{display:inline-flex;align-items:center;gap:6px;font-size:10px;color:#4a886f}
+#store-app .store-autoscan-dot{width:6px;height:6px;border-radius:50%;background:#44a77f}
+@media(max-width:860px){#store-app .scan-overview{gap:12px}#store-app .scan-numbers{grid-template-columns:repeat(2,minmax(0,1fr))}#store-app .scan-steps{grid-template-columns:1fr}}
+@media(max-width:600px){#store-app .store-investigation-status{padding:14px}#store-app .scan-top{flex-direction:column}#store-app .scan-actions{width:100%;justify-content:space-between}#store-app .scan-overview{padding:10px}#store-app .scan-ring{width:76px;height:76px}#store-app .scan-ring>div{width:60px;height:60px}#store-app .scan-ring b{font-size:19px}#store-app .scan-numbers b{font-size:19px}#store-app .scan-activity>div:first-child{flex-direction:column;align-items:flex-start}}
+@media(prefers-reduced-motion:reduce){#store-app .scan-live.is-active i{animation:none}#store-app .scan-line>span{transition:none}}
+/* A search-round percentage is not a nationwide percentage. */
+#store-app .scan-country-limits{margin:8px 0 0!important;padding:9px 11px;border:1px solid #d6e7f3;border-radius:8px;color:#577891!important;background:#f1f8fc;font-size:11px!important;line-height:1.55}
+#store-app .scan-country-limits strong{color:#245c7e}
+#store-app .scan-footnote strong{color:#395d76}
+#store-app .scan-steps .scan-step.partial .scan-step-icon{background:#e5ad58;color:white}

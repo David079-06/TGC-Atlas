@@ -1,0 +1,47 @@
+/* Localizador geográfico conectado al directorio · PC/tablet/móvil */
+.stores-toolbar{position:relative;z-index:1200}
+.stores-toolbar .store-searchbox{position:relative;z-index:1201;min-width:0}
+.stores-toolbar #store-search{width:100%;min-width:0}
+.geo-suggestions{position:absolute;z-index:1202;top:calc(100% + 6px);left:0;right:0;
+ min-width:min(310px,90vw);max-height:330px;overflow-y:auto;background:#fff;
+ border:1px solid #d2e2ef;border-radius:12px;box-shadow:0 16px 42px #142c4725;padding:6px;
+ overscroll-behavior:contain}
+.geo-suggestions[hidden]{display:none!important}
+.geo-suggestion{display:flex;align-items:center;width:100%;gap:11px;min-height:48px;text-align:left;
+ background:white;border:0;border-radius:8px;padding:9px 11px;color:#274960;cursor:pointer}
+.geo-suggestion:hover,.geo-suggestion.active{background:#edf5fb}
+.geo-suggestion>span:nth-child(2){flex:1;min-width:0}
+.geo-suggestion strong,.geo-suggestion small{display:block;overflow-wrap:anywhere}
+.geo-suggestion strong{font-size:12px;font-weight:750}
+.geo-suggestion small{margin-top:4px;color:#819aaf;font-size:10px}
+.geo-suggestion-icon{font-size:18px;width:24px;line-height:1;text-align:center}
+.store-location-active{display:flex;align-items:center;flex-wrap:wrap;gap:9px;margin:0 0 12px}
+.store-location-active #store-location-selection{display:inline-flex;align-items:center;background:#eaf3f9;color:#2b648a;
+ border:1px solid #cddfea;border-radius:30px;min-height:34px;padding:6px 12px;font-size:11px;font-weight:800}
+.store-location-active button{background:transparent;border:0;color:#5283a1;padding:7px 9px;border-radius:7px;font-size:11px;cursor:pointer}
+.store-location-active button:hover{background:#edf4f8}
+.store-map-column{position:relative;z-index:0}
+#store-map,#store-map-fallback{display:block;width:100%;height:375px;border:0;background:#ebf2f6}
+#store-map[hidden],#store-map-fallback[hidden]{display:none!important}
+#store-map{cursor:crosshair}
+#store-map .leaflet-container,#store-map .leaflet-pane{font-family:inherit}
+#store-map .leaflet-control-attribution{font-size:9px}
+.geo-map-hint{color:#547992;background:#f1f7fb;font-size:10px;line-height:1.5;padding:11px 16px;border-bottom:1px solid #e3edf3}
+.store-list-column{min-width:0}
+.store-list-head{flex-wrap:wrap}
+.store-list-head>div{min-width:0}
+.store-item-meta .scan-status{margin-left:auto}
+.store-location-active{scroll-margin-top:70px}
+@media(max-width:800px){
+ #store-map,#store-map-fallback{height:clamp(220px,36vh,320px)}
+ .store-map-column{order:2}.store-list-column{order:1}
+ .geo-suggestions{max-height:260px}
+}
+@media(max-width:600px){
+ .geo-suggestions{left:auto;right:0;width:min(90vw,390px);max-height:260px}
+ .store-location-active{gap:5px;margin:0 0 10px}
+ .store-location-active #store-location-selection{max-width:100%;overflow-wrap:anywhere;line-height:1.3;font-size:11px}
+ #store-map,#store-map-fallback{height:260px}
+ .geo-map-hint{padding:10px 12px}
+ .store-map-head>span:first-child{white-space:normal}
+}
