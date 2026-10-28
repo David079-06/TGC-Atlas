@@ -30,7 +30,11 @@ async function loadCountryInvestigation(start=false,force=false){
   if(country!==code||token!==investigationToken)return;
   const previous=countryInvestigation;
   countryInvestigation=data;renderCountryInvestigation();
-  const changed=!!previous&&(previous.totalCandidates!==data.totalCandidates||previous.reviewed!==data.reviewed||previous.documented!==data.documented);
+  const oldQueue=previous?.verificationQueue||{},newQueue=data.verificationQueue||{};
+  const changed=!!previous&&(previous.totalCandidates!==data.totalCandidates||
+    previous.reviewed!==data.reviewed||previous.documented!==data.documented||
+    oldQueue.done!==newQueue.done||oldQueue.retry!==newQueue.retry||
+    oldQueue.running!==newQueue.running||oldQueue.failed!==newQueue.failed);
   if(data.started||changed)refreshResearch();
  }catch(e){if(country===code&&token===investigationToken){countryInvestigation={job:{status:'limited',last_note:'El agente de investigación no está disponible ahora.',last_error:String(e.message||e)}};renderCountryInvestigation()}}
 }
@@ -237,8 +241,13 @@ function renderList(){
   const labels=s.storeType==='physical'?'Física':s.storeType==='hybrid'?'Online y física':'Online';
   const trust=trustOf(s);
   const reviewed=!!(trust.checkedAt||s.verification?.last_checked_at);
-  const stage=reviewed?(trust.level==='green'?'Identidad corroborada':s.verification?.website_reachable===true?'Web consultada · falta corroborar':'Revisión inconclusa'):
-   'Pendiente de revisión';
+  const pendingState={queued:'En cola de verificación',running:'Verificando ahora',
+   retry:'Reintento programado',failed:'Sin completar · requiere revisión'};
+  const stage=reviewed?(trust.level==='green'?'Identidad corroborada':
+   s.queueStatus==='retry'?'Verificación temporalmente limitada · reintento programado':
+   s.queueStatus==='failed'?'Verificación inconclusa · límite de reintentos':
+   s.verification?.website_reachable===true?'Web consultada · falta corroborar':'Revisión inconclusa'):
+   (pendingState[s.queueStatus]||'Pendiente de revisión');
   const stageClass=reviewed?'checked':'pending';
   return '<button type="button" data-store="'+h(s.id)+'" class="store-item'+(selected===s.id?' current':'')+'" aria-pressed="'+(selected===s.id)+'">'+
    '<span class="store-item-row"><strong>'+h(s.name)+'</strong>'+badge(s)+'</span>'+
@@ -314,6 +323,8 @@ function renderDetail(){
 }
 function renderOsmDetail(s){
  const t=trustOf(s);
+ const discoveryLinks=(s.discoverySources||[]).filter(x=>safe(x.url))
+  .map(x=>'<a class="trust-source" target="_blank" rel="noopener noreferrer" href="'+safe(x.url)+'">'+h(x.label)+' ↗</a>').join('');
  $('#store-detail').innerHTML='<div class="store-detail-head"><div><div class="eyebrow">CANDIDATO · IDENTIDAD NO VERIFICADA</div><h2>'+h(s.name)+'</h2>'+
  '<div class="store-tags">'+badge(s)+'<span class="store-tag subtle">'+h(s.typeLabel||'Comercio físico')+'</span></div></div>'+
  '<div class="store-detail-actions"><button type="button" class="store-back" data-action="back">← Volver a tiendas</button>'+
@@ -321,7 +332,9 @@ function renderOsmDetail(s){
  (safe(s.sourceUrl)?'<a href="'+safe(s.sourceUrl)+'" target="_blank" rel="noopener noreferrer">Fuente: '+h(s.source||'localización')+' ↗</a>':'')+'</div></div>'+
  '<div class="trust-verdict '+(t.level==='green'?'trust-positive':'trust-caution')+'"><strong>'+h(t.label)+'</strong><p>'+h(t.summary)+'</p><small>Fuentes comprobadas: '+fmt(t.sources?.length||0)+' · '+h(t.checkedAt?'Última revisión: '+time(t.checkedAt):'Sin revisión documental completa')+'. Ninguna clasificación garantiza compras o entregas.</small></div>'+
  '<div class="store-detail-grid"><div class="store-detail-info"><h3>Información conocida</h3><p>'+h(s.address||s.city||'Ubicación no documentada')+'</p><p>'+h(s.phone||'Sin teléfono publicado')+'</p></div>'+
- '<div class="store-detail-analysis"><h3>Comprobaciones y pendientes</h3><p>Es necesario contrastar la identidad del titular, las condiciones comerciales y opiniones externas. No se obtiene una valoración de seguridad a partir de un mapa.</p><p><strong>Comprobación técnica:</strong> '+h(s.verification?.website_checked_at?(s.verification.website_reachable?'Web accesible':'No concluyente')+' · '+time(s.verification.website_checked_at):s.siteCheck?.checked_at?(s.siteCheck.reachable?'Web accesible':'No concluyente')+' · '+time(s.siteCheck.checked_at):'Pendiente o sin web autorizada')+'</p>'+(s.verification?'<p>'+h(s.verification.website_note||'')+'</p><p>Datos publicados detectados: '+h([s.verification.published_contact?'contacto':null,s.verification.published_conditions?'condiciones':null,s.verification.published_identity?'identificador legal sin contraste oficial':null].filter(Boolean).join(', ')||'ninguno de forma concluyente')+'.</p>':'')+'<p>Que una página responda no garantiza identidad, entregas ni pagos seguros.</p><h4>Fuentes independientes</h4><div class="trust-source-list">'+((t.sources||[]).filter(x=>safe(x.url)).map(x=>'<a class="trust-source" target="_blank" rel="noopener noreferrer" href="'+safe(x.url)+'">'+h(x.label)+' ↗</a>').join('')||'<span>Las fuentes externas suficientes todavía no están disponibles.</span>')+'</div></div></div>';
+ '<div class="store-detail-analysis"><h3>Comprobaciones y pendientes</h3><p>Es necesario contrastar la identidad del titular, las condiciones comerciales y opiniones externas. No se obtiene una valoración de seguridad a partir de un mapa.</p><p><strong>Comprobación técnica:</strong> '+h(s.verification?.website_checked_at?(s.verification.website_reachable?'Web accesible':'No concluyente')+' · '+time(s.verification.website_checked_at):s.siteCheck?.checked_at?(s.siteCheck.reachable?'Web accesible':'No concluyente')+' · '+time(s.siteCheck.checked_at):'Pendiente o sin web autorizada')+'</p>'+(s.verification?'<p>'+h(s.verification.website_note||'')+'</p><p>Datos publicados detectados: '+h([s.verification.published_contact?'contacto':null,s.verification.published_conditions?'condiciones':null,s.verification.published_identity?'identificador legal sin contraste oficial':null].filter(Boolean).join(', ')||'ninguno de forma concluyente')+'.</p>':'')+'<p>Que una página responda no garantiza identidad, entregas ni pagos seguros.</p><h4>Fuentes independientes</h4><div class="trust-source-list">'+((t.sources||[]).filter(x=>safe(x.url)).map(x=>'<a class="trust-source" target="_blank" rel="noopener noreferrer" href="'+safe(x.url)+'">'+h(x.label)+' ↗</a>').join('')||'<span>Las fuentes externas suficientes todavía no están disponibles.</span>')+'</div>'+
+ '<h4>Fuentes del descubrimiento</h4><p>Procedencia del hallazgo; varias lecturas de OSM no son comprobaciones independientes de seguridad.</p>'+
+ '<div class="trust-source-list">'+(discoveryLinks||'<span>Consulta la fuente pública indicada en la cabecera.</span>')+'</div></div></div>';
 }
 async function loadCountryOptions(){
  try{
