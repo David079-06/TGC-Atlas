@@ -1,0 +1,1 @@
+CREATE INDEX IF NOT EXISTS market_offer_history_latest_idx ON market_offer_history(merchant,external_id,checked_at DESC);
