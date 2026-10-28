@@ -18,7 +18,7 @@ async function snapshot(country,city,page=1){
    shop_kind,source,source_url,evidence_level,pokemon_signal,review_status,last_seen
    FROM discovered_shops WHERE ${filters}
    ORDER BY pokemon_signal DESC,last_seen DESC,name ASC
-   LIMIT 40 OFFSET $3`,[country,city,Math.max(0,page-1)*40])
+   LIMIT 40 OFFSET $${city?3:2}`,[...args,Math.max(0,page-1)*40])
  ]);
  const checks=results.rows.length?await db.query('SELECT shop_id,website_reachable,website_checked_at,website_note,published_contact,published_conditions,published_identity,verification_level,independent_sources,last_checked_at FROM discovered_shop_evidence WHERE shop_id=ANY($1::text[])',[results.rows.map(x=>x.id)]):{rows:[]};
  const checkById=new Map(checks.rows.map(x=>[x.shop_id,x]));
