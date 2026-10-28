@@ -1,0 +1,78 @@
+/* TCG Atlas · Visual polish v73. Overrides only presentation, not trust criteria. */
+:root{--atlas-ink:#142c42;--atlas-blue:#256b99;--atlas-edge:#d7e4ed;--atlas-focus:#83bce1}
+body{background:radial-gradient(ellipse at 80% -10%,#d9ebf7 0,transparent 46%),#f4f8fb!important}
+.simulation-side{background:linear-gradient(175deg,#0b1c30 0%,#142d46 65%,#17364e 100%)!important;border-right:1px solid #254458}
+.simulation-side .brand-symbol{box-shadow:0 7px 20px #031a3470}
+.sim-topbar{background:#ffffffeb;backdrop-filter:blur(14px);border-bottom:1px solid #dbe8f0}
+.sim-pagehead h1{color:#102d42;font-weight:820;letter-spacing:-.04em;font-size:clamp(28px,3vw,38px)}
+.sim-pagehead .eyebrow{letter-spacing:.16em}
+.sim-pagehead p{max-width:770px;font-size:13px;line-height:1.75;color:#536e80}
+#store-app{--ss-border:#dae6ed;--ss-ink:#1d394e;--ss-muted:#667f91}
+#store-app .stores-toolbar{background:#fff;border:1px solid #dde8f0;border-radius:18px;padding:15px;box-shadow:0 9px 30px #142e4910}
+#store-app .stores-toolbar select,#store-app .stores-toolbar input{border-radius:12px;border-color:#d7e4ec;background:#f8fbfd;transition:border-color .15s,box-shadow .15s}
+#store-app .stores-toolbar select:hover,#store-app .stores-toolbar input:hover{border-color:#9dbdd2}
+#store-app .stores-toolbar input:focus,#store-app .stores-toolbar select:focus{background:#fff;border-color:#5a9abf;box-shadow:0 0 0 4px #4d98bb20}
+#store-app .stores-toolbar .store-refresh{background:#edf5fb;border:1px solid #d3e4ee;color:#245d80}
+#store-app .stores-toolbar .store-refresh:hover{background:#ddeef8;border-color:#a9d1e5;transform:translateY(-1px)}
+#store-app .store-register>summary,#store-app .store-register form button,#store-app .store-detail-actions button:not(.store-delete):not(.store-back){background:linear-gradient(130deg,#164a73,#287ba5);color:#fff;border:1px solid #2b7498;box-shadow:0 5px 14px #1b65802a}
+#store-app .store-register>summary:hover,#store-app .store-register form button:hover,#store-app .store-detail-actions button:not(.store-delete):not(.store-back):hover{filter:brightness(1.08);transform:translateY(-1px)}
+#store-app button,#store-app summary{transition:background .16s,border-color .16s,box-shadow .16s,transform .16s;touch-action:manipulation}
+#store-app button:active,#store-app summary:active{transform:translateY(0)}
+#store-app button:focus-visible,#store-app summary:focus-visible,#store-app input:focus-visible,#store-app select:focus-visible{outline:3px solid var(--atlas-focus);outline-offset:2px}
+#store-app .store-location-active{border-radius:12px;color:#476d84}
+#store-app .store-investigation-status{background:linear-gradient(126deg,#f4faff,#fff 60%,#edf7fb)!important;border:1px solid #cddfea!important;border-radius:19px!important;box-shadow:0 12px 35px #0e44600b}
+#store-app .scan-overview,#store-app .scan-activity,#store-app .scan-step{border-radius:14px;box-shadow:0 3px 14px #124c6607}
+#store-app .scan-step.current{background:#eaf5fd;border-color:#9acae3}
+#store-app .scan-actions button{border-radius:11px;min-height:42px;padding:10px 15px;background:#fff;font-size:12px}
+#store-app .scan-actions button:hover{border-color:#8bbddc;box-shadow:0 4px 12px #2d7aa11c}
+#store-app .store-map-column,#store-app .store-list-column,#store-app .stores-recommendations,#store-app .store-detail{border:1px solid #dae6ee;border-radius:18px;box-shadow:0 8px 30px #183b520a;background:#fff}
+#store-app .store-list-head{padding:19px 19px 13px;align-items:flex-start}
+#store-app .store-list-head b{font-size:17px;font-weight:800;color:#1a374d;letter-spacing:-.02em}
+#store-app .store-list-head small{font-size:11px;color:#658198}
+#store-app .store-list-head select{min-height:38px;border-radius:10px;background:#f7fafc;color:#425f73}
+#store-app .store-list{scrollbar-color:#c4dbe8 transparent;scrollbar-width:thin;padding:3px 13px 14px}
+#store-app .store-item{border:1px solid #e2eaf1;border-radius:13px;background:#fff;padding:15px;margin-bottom:10px;box-shadow:0 2px 9px #133c5805}
+#store-app .store-item:hover{border-color:#a2c8dc;background:#f7fbfe;box-shadow:0 6px 18px #19507312;transform:translateY(-1px)}
+#store-app .store-item.just-added{animation:atlas-new-card .45s ease-out both}
+@keyframes atlas-new-card{from{opacity:.4;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+#store-app .store-item.current{border-color:#4c9ccc;background:linear-gradient(135deg,#eef8ff,#fff);box-shadow:inset 3px 0 #318ac3,0 8px 19px #267b9e17}
+#store-app .store-item-row strong{font-size:13px;font-weight:800;letter-spacing:-.01em;color:#193951}
+#store-app .store-item-description{color:#6c8698;font-size:11px}
+#store-app .store-tag{border-radius:999px;padding:7px 10px;font-size:10px;letter-spacing:.005em;border:1px solid transparent}
+#store-app .store-tag.good{border-color:#c1e7d1}
+#store-app .store-tag.warn{border-color:#f2dfb0}
+#store-app .store-tag.risk{border-color:#f1caca}
+#store-app .store-review-stage{display:inline-flex;gap:7px;align-items:center;font-size:10px;font-weight:720;padding:7px 10px;border-radius:8px;margin:9px 0 3px;background:#f2f6f9;color:#607f92}
+#store-app .store-review-stage.checked{background:#ebf6f7;color:#2e6e79}
+#store-app .store-stage-dot{width:7px;height:7px;flex:none;border-radius:99px;background:#a4b8c9}
+#store-app .store-review-stage.checked .store-stage-dot{background:#299a86}
+#store-app .store-review-stage.pending .store-stage-dot{animation:atlas-breathe 1.9s ease-in-out infinite}
+@keyframes atlas-breathe{50%{opacity:.35;transform:scale(.8)}}
+#store-app .trust-list-meta{gap:4px}
+#store-app .store-discovery-status{color:#668196;font-size:11px;line-height:1.6}
+#store-app .store-recs{gap:12px}
+#store-app .store-rec{border-radius:14px;background:#fbfdff}
+#store-app .store-rec:hover{border-color:#85b7d3;box-shadow:0 7px 22px #12527312}
+#store-app .store-detail-actions a{border-radius:10px}
+#store-app .store-empty{border-radius:12px!important;background:#f7fbfd!important;border:1px dashed #cbdce8!important;padding:21px!important;color:#678394!important}
+@media(min-width:1320px){#store-app .store-layout{grid-template-columns:minmax(0,1.08fr) minmax(0,1fr)}}
+@media(max-width:800px){
+ #store-app .stores-toolbar{padding:11px;gap:9px;border-radius:14px}
+ #store-app .store-list-head{padding:15px 12px 11px;flex-wrap:wrap}
+ #store-app .store-list-head .store-list-filters{width:100%;display:flex;gap:7px;flex-wrap:wrap}
+ #store-app .store-list-head select{flex:1;max-width:none;min-width:116px}
+ #store-app .store-map-column,#store-app .store-list-column{border-radius:14px}
+ #store-app .store-list{max-height:55vh}
+}
+@media(max-width:600px){
+ #store-app .stores-toolbar{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+ #store-app .store-item{padding:13px 12px}
+ #store-app .store-item-row strong{font-size:12px}
+ #store-app .store-tag{font-size:9px;padding:6px 8px}
+ #store-app .scan-overview{flex-wrap:wrap}
+ #store-app .scan-numbers{flex:1 1 190px}
+}
+@media(prefers-reduced-motion:reduce){
+ #store-app button,#store-app summary,#store-app .store-item{transition:none!important}
+ #store-app .store-review-stage.pending .store-stage-dot,#store-app .store-item.just-added{animation:none}
+}
