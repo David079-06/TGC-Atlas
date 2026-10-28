@@ -1,0 +1,126 @@
+/* TCG Atlas v21. Capa final de diseño: navegacion accesible y carteras compactas. */
+:root{--atlas-ink:#193146;--atlas-muted:#72869a;--atlas-stroke:#e1e9f1;--atlas-blue:#2a668f;--atlas-bg:#f5f8fb}
+body{background:var(--atlas-bg);color:var(--atlas-ink)}
+.workspace{min-width:0;width:100%}
+.workspace>main{max-width:1520px;margin:0 auto;padding-bottom:56px}
+.pagehead{margin:2px 0 24px}
+.pagehead h1{letter-spacing:-.6px;line-height:1.25}
+.panel{box-shadow:0 3px 16px rgba(15,37,60,.025)!important;border-color:var(--atlas-stroke)!important}
+.panel .section-bar{gap:12px}
+.metrics.three .stat{padding:21px 23px}
+#page-inversion .panel,#page-reventa .panel{overflow:hidden}
+#page-inversion .panel:has(.portfolio-picker),#page-reventa .panel:has(.portfolio-picker){padding:25px}
+#invest-table,#flip-table{min-width:0}
+.portfolio-picker{margin:16px 0 21px;padding:22px;border:1px solid #dae5ef;background:linear-gradient(150deg,#f8fbfe,#fff);border-radius:15px}
+.picker-heading{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:17px}
+.picker-eyebrow{font-size:10px;color:#6b8298;font-weight:750;letter-spacing:.7px}
+.picker-heading h3{font-size:19px;letter-spacing:-.35px;margin:5px 0;color:#18354b}
+.picker-heading p{font-size:12px;color:#74889b;line-height:1.5;margin:0}
+.picker-catalog-link{white-space:nowrap;font-size:12px;padding:11px 14px;border:1px solid #d5e3ef;background:#fff;border-radius:10px;color:#2b6085;font-weight:650}
+.picker-search{display:flex;align-items:center;gap:10px;border:1px solid #d5e1eb;border-radius:10px;background:#fff;padding:0 13px;margin:0 0 15px;color:#70879b;min-height:47px}
+.picker-search:focus-within{border-color:#64a0c6;box-shadow:0 0 0 3px #64a0c619}
+.picker-search input{background:transparent;border:0;box-shadow:none!important;outline:0;width:100%;height:44px;padding:10px 0;min-width:75px;color:#274358;font-size:13px}
+.picker-search [data-count]{font-size:10px;white-space:nowrap;color:#879bad}
+.pick-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px;max-height:400px;overflow:auto;padding:2px 3px 4px 0;align-content:start}
+.pick-card{display:grid;grid-template-columns:1fr auto;gap:10px 12px;align-items:center;background:white;border:1px solid #e0e9f1;border-radius:11px;padding:16px;min-width:0;transition:border-color .15s,box-shadow .15s}
+.pick-card:hover{border-color:#b6cedf;box-shadow:0 7px 17px #1e40500b}
+.pick-head{min-width:0;grid-column:1/-1}
+.pick-head strong{display:block;font-size:13px;line-height:1.4;color:#243e52;overflow-wrap:anywhere}
+.pick-head small{display:block;margin-top:4px;color:#8399aa;font-size:11px}
+.pick-meta b{display:block;font-size:15px;color:#19344b}
+.pick-meta small{display:block;font-size:11px;color:#7e95a5;margin-top:4px}
+.pick-stock{font-size:10px;line-height:1.4;grid-column:1/-1;color:#8798a7;min-height:26px}
+.pick-stock.confirmed{color:#217c65}
+.pick-add{grid-column:2;grid-row:2;align-self:center;background:#235e87;color:white;border:0;border-radius:9px;padding:10px 13px;white-space:nowrap;font-size:11px;font-weight:750}
+.pick-add:hover:not(:disabled){background:#174c72}
+.pick-add:disabled{background:#edf2f6;color:#98a8b7;cursor:not-allowed}
+.pick-empty{grid-column:1/-1;text-align:center;background:white;border:1px dashed #d3e1ee;padding:25px;color:#8296aa;font-size:12px;border-radius:10px}
+.picker-footnote{font-size:10px;line-height:1.5;margin-top:13px;color:#7e91a2}
+.portfolio-count{font-size:11px;font-weight:650;color:#6f8397;margin:0 0 12px}
+.portfolio-empty{text-align:center;padding:45px 18px 50px;border:1px dashed #dce6ee;border-radius:14px;background:#fcfdff}
+.portfolio-empty h3{font-size:17px;margin:9px 0;color:#385468}
+.portfolio-empty p{font-size:12px;color:#8a9caa;max-width:440px;margin:0 auto;line-height:1.6}
+.empty-sign{font-size:25px;width:48px;height:48px;line-height:46px;background:#eaf2f8;color:#396b91;border-radius:14px;margin:0 auto}
+.portfolio-table{min-width:980px;width:100%;font-variant-numeric:tabular-nums}
+.portfolio-table thead th{white-space:nowrap;font-size:10px;color:#71899c;background:#f7fafc!important;padding:14px 11px;border-bottom:1px solid #e2eaf1}
+.portfolio-table tbody td{font-size:12px;padding:19px 11px;vertical-align:middle;min-width:85px;border-color:#ecf1f5}
+.portfolio-table tbody tr:hover{background:#f9fcff}
+.portfolio-table td:nth-child(1){min-width:175px}
+.portfolio-table td:nth-child(6){min-width:176px}
+.portfolio-title{display:block;color:#1c394e;line-height:1.4;font-size:12px}
+.portfolio-muted{display:block;margin-top:6px;font-weight:400;color:#91a1b0;font-size:10px;line-height:1.55}
+.portfolio-table td>b,.portfolio-table td>strong{color:#284154}
+.portfolio-links{display:flex;flex-direction:column;gap:7px}
+.portfolio-links a{font-size:11px;white-space:nowrap;color:#356c93}
+.stock-chip{display:inline-block;padding:7px 10px;border-radius:9px;font-size:10px;font-weight:650;white-space:nowrap}
+.stock-ok{background:#e6f6ef;color:#237959}.stock-unknown{background:#fff3dc;color:#946c25}.stock-out{background:#faeded;color:#a75c5d}
+.new-qty .qty-controls{display:flex;flex-wrap:nowrap;gap:5px;align-items:center}
+.new-qty .qty-controls button{flex-shrink:0;width:32px;height:34px;border-radius:9px;color:#2e6b98;background:#eaf2f9}
+.new-qty .qty-controls button:hover:not(:disabled){background:#dcecf8}
+.new-qty input.qty-input{width:51px;min-width:51px;max-width:51px;padding:7px 4px;text-align:center;font-size:12px;border:1px solid #d8e5ee;border-radius:8px;background:white}
+.new-qty input.qty-input::-webkit-inner-spin-button,.new-qty input.qty-input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+.new-qty input.qty-input{-moz-appearance:textfield;appearance:textfield}
+.qty-hint{font-size:10px;line-height:1.45;color:#8297a8;display:block;max-width:185px;margin-top:8px}
+.qty-hint.stock-over{color:#a6504d}
+.portfolio-tools{margin-top:19px;border-top:1px solid #e7edf3;padding-top:17px}
+.portfolio-tools>summary{font-size:12px;color:#5b7891;cursor:pointer;display:list-item;width:max-content;list-style:disclosure-closed}
+.portfolio-tools[open]>summary{list-style:disclosure-open}
+.portfolio-tools .importexport{margin-top:12px;display:flex;gap:7px;flex-wrap:wrap}
+.top-controls #present{display:none}
+.top-controls .subtle,.top-controls .mainbtn{font-size:11px;border-radius:9px}
+@media(min-width:901px){
+ body{padding-bottom:0!important}
+ .atlas-dock{left:auto!important;right:24px!important;bottom:22px!important;transform:none!important;padding:5px!important;border-radius:13px!important;min-width:auto!important}
+ .atlas-dock button:not(.dock-back),.atlas-dock .dock-divider{display:none!important}
+ .atlas-dock button.dock-back{flex-direction:row;min-width:0!important;padding:11px 15px!important;font-size:12px!important;gap:9px}
+ .atlas-dock button.dock-back .dock-icon{font-size:18px!important}
+}
+@media(max-width:1400px){.pick-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:900px){
+ body{display:block!important}
+ .side{width:100%!important;height:auto!important;min-height:0!important;position:relative!important;display:block!important;padding:12px 13px!important}
+ .side .brand{display:flex!important;margin:0 0 10px!important}
+ .side .brand div:last-child{display:block!important}
+ .side .side-label,.side .side-bottom{display:none!important}
+ #menu{display:flex!important;flex-direction:row!important;gap:6px!important;overflow-x:auto!important;scrollbar-width:thin;padding-bottom:2px;align-items:center}
+ #menu>button,#menu>.analysis-menu-link{flex:none!important;width:auto!important;font-size:12px!important;white-space:nowrap!important;min-width:max-content!important;padding:10px 13px!important;gap:7px}
+ #menu>button span,#menu>.analysis-menu-link span{font-size:13px!important;width:auto!important;display:inline!important}
+ #menu>.side-more{display:block!important;flex:none!important;margin:0!important;padding:0!important;border:0!important;min-width:105px}
+ #menu>.side-more summary{font-size:12px!important;line-height:1.4!important;padding:10px 12px!important;background:#213d53;border-radius:9px;white-space:nowrap}
+ #menu>.side-more button,#menu>.side-more a{font-size:12px!important;width:100%!important;white-space:nowrap!important;padding:10px 12px!important;display:flex!important;align-items:center!important;gap:8px}
+ #menu>.side-more button span{font-size:12px!important}
+ #menu>.side-more[open]{min-width:170px!important}
+ .workspace{width:100%;min-width:0}
+ .workspace>main{padding:22px 16px 125px!important}
+ .topbar{padding:0 16px}
+ .atlas-dock{bottom:10px}
+}
+@media(max-width:700px){
+ .pick-grid{grid-template-columns:1fr;max-height:390px}
+ .picker-heading{align-items:flex-start;flex-direction:column}
+ .portfolio-picker{padding:14px}
+ #page-inversion .panel:has(.portfolio-picker),#page-reventa .panel:has(.portfolio-picker){padding:15px}
+ .portfolio-table{min-width:0!important;display:block}
+ .portfolio-table thead{display:none}
+ .portfolio-table tbody{display:grid;gap:11px}
+ .portfolio-table tbody tr{display:grid;border:1px solid #e5edf4;border-radius:12px;padding:10px 13px}
+ .portfolio-table tbody td{display:flex;justify-content:space-between;align-items:center;gap:15px;padding:9px 0!important;min-width:0!important;width:100%;border-bottom:1px solid #f0f3f6}
+ .portfolio-table tbody td:last-child{border:0}
+ .portfolio-table tbody td:before{content:attr(data-label);font-size:10px;font-weight:650;color:#889aab;max-width:100px;flex-shrink:0}
+ .portfolio-table tbody td>*{text-align:right}
+ .portfolio-table tbody td>.new-qty{margin-left:auto}
+ .portfolio-table td:nth-child(1){min-width:0}
+ .portfolio-table .portfolio-muted{max-width:230px}
+ .portfolio-links{flex-direction:row;gap:12px}
+ .panel .section-bar{flex-wrap:wrap;align-items:flex-start}
+ .metrics.three{grid-template-columns:1fr}
+}
+/* La única acción flotante es Volver: no tapa los datos ni duplica el menú. */
+@media(max-width:900px){
+ .atlas-dock{left:auto!important;right:12px!important;bottom:13px!important;transform:none!important;width:auto!important;max-width:calc(100vw - 24px)!important;padding:5px!important;border-radius:13px!important;justify-content:flex-end!important}
+ .atlas-dock button:not(.dock-back),.atlas-dock .dock-divider{display:none!important}
+ .atlas-dock button.dock-back{flex:0 0 auto!important;min-width:0!important;flex-direction:row!important;padding:10px 13px!important;font-size:12px!important;gap:8px}
+ .atlas-dock button.dock-back .dock-icon{font-size:18px!important}
+}
+@media(prefers-reduced-motion:reduce){.pick-card{transition:none!important}}
+@media print{.portfolio-picker,.portfolio-tools,.atlas-dock{display:none!important}}
