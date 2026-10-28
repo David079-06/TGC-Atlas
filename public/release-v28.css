@@ -1,0 +1,40 @@
+/* Vista compacta recuperada, sin tarjetas gigantes ni controles repetidos. */
+#page-oportunidades .op-table-container{display:block;min-width:0;max-width:100%;background:#fff;border:1px solid #e2eaf1;border-radius:13px;overflow:hidden}
+#page-oportunidades .op-compact-scroll{overflow-x:auto;max-width:100%}
+#page-oportunidades .op-compact{width:100%;min-width:930px;border-collapse:collapse;font-variant-numeric:tabular-nums}
+#page-oportunidades .op-compact thead{background:#f5f8fb}
+#page-oportunidades .op-compact th{font-size:10px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;padding:17px 14px;text-align:left;color:#698198;border-bottom:1px solid #e1eaf1;white-space:nowrap}
+#page-oportunidades .op-compact td{font-size:12px;padding:16px 14px;vertical-align:middle;border-bottom:1px solid #edf2f6;min-width:110px}
+#page-oportunidades .op-compact tr:last-child td{border-bottom:0}
+#page-oportunidades .op-compact tbody tr:hover{background:#f7fbfe}
+#page-oportunidades .op-compact td:first-child{min-width:205px;max-width:305px}
+#page-oportunidades .op-compact strong{display:block;color:#254159;font-size:12px;line-height:1.4}
+#page-oportunidades .op-compact small{display:block;color:#8499ab;font-size:10px;margin-top:5px;line-height:1.45}
+#page-oportunidades .op-compact .positive{color:#158464}
+#page-oportunidades .op-compact .negative{color:#a75256}
+#page-oportunidades .op-actions{display:flex;align-items:center;gap:6px;justify-content:flex-start}
+#page-oportunidades .op-actions button{white-space:nowrap;border-radius:8px;padding:9px 10px;font-size:11px}
+#page-oportunidades .op-stock{font-size:10px;font-weight:700;padding:7px 9px;border-radius:8px;display:inline-block;white-space:nowrap}
+#page-oportunidades .op-stock.stock-neutral{color:#576f83;background:#eff4f7}
+#page-oportunidades .op-stock.stock-low{color:#986b21;background:#fff3df}
+#page-oportunidades .op-stock.stock-out{color:#a64d50;background:#fbecec}\n#catalogTable .dataLabel.low-stock{background:#fff0d8;color:#976c21}\n#page-oportunidades .op-compact tbody tr:focus-within{background:#f0f7fc}
+#page-oportunidades .filterbar{margin:17px 0}
+.tablewrap{overflow-x:auto!important;max-width:100%!important}
+#catalogTable table{min-width:920px;border-collapse:collapse}
+#catalogTable td{vertical-align:middle!important;padding:14px 12px!important}
+#catalogTable td b,#catalogTable td small,#catalogTable .dataLabel{display:block!important;line-height:1.5!important}
+#catalogTable td b{overflow-wrap:anywhere}
+#catalogTable td small{color:#8ba0b2;font-size:10px;white-space:normal}
+#catalogTable td:nth-child(3){white-space:nowrap;min-width:120px}
+#catalogTable td:nth-child(3) b{font-size:13px;color:#2b4457}
+#catalogTable td:nth-child(3) small{font-size:11px;color:#7b93a5;margin-top:4px}
+#catalogTable td:nth-child(1){min-width:220px;max-width:310px}
+#catalogTable td:nth-child(6){min-width:140px;white-space:nowrap}
+#catalogTable td:nth-child(6) a{margin-right:7px}
+#catalogTable td:nth-child(6) button{margin-left:0!important;padding:8px 9px;border-radius:7px}
+#catalogTable thead th{background:#f5f8fb;color:#71879b}
+#catalogTable tbody tr:hover{background:#f7fbfe}
+#catalogTable .dataLabel{width:max-content;max-width:170px;white-space:normal;overflow-wrap:break-word}
+.market-info-inline{font-size:10px;color:#7991a6}
+#page-inversion .portfolio-tools,#page-reventa .portfolio-tools{margin-top:12px}
+@media(max-width:700px){#page-oportunidades .op-compact{min-width:760px}#page-oportunidades .op-compact td{padding:12px 10px}}
