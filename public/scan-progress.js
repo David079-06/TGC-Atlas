@@ -9,7 +9,7 @@ window.TCGScanProgress = function({el,countryName,data,h,fmt,time}){
  const phases=[{name:'Buscar tiendas',detail:doneZones+' de '+totalZones+' áreas planificadas'+(failedZones?' · '+failedZones+' sin respuesta':'') ,percent:pct.search||0,stage:'discover'},
   {name:'Verificar una a una',detail:reviewed+' / '+count+' tiendas',percent:pct.verification||0,stage:'verify'},
   {name:'Recomendar',detail:(x.documented||0)+' con pruebas suficientes',percent:finished?100:0,stage:'finished'}];
- const label=finished?'Revisión de resultados terminada':phase==='verify'?'Verificando comercios individualmente':
+ const label=finished?'Revisión de resultados terminada':phase==='verify'?'Verificando comercios individualmente':phase==='discover'&&reviewed>0?'Buscando y verificando tiendas a la vez':
   j.status==='queued'?'Preparando investigación':j.status==='limited'?'Investigación con limitaciones':'Buscando comercios Pokémon TCG';
  const latest=x.latestReviews||[];
  el.innerHTML='<div class="scan-top"><div class="scan-heading"><span class="scan-eyebrow">ESCANEO DEL PAÍS · '+h(countryName)+'</span>'+
@@ -20,7 +20,7 @@ window.TCGScanProgress = function({el,countryName,data,h,fmt,time}){
  '<div class="scan-overview"><div class="scan-ring" style="--pct:'+Math.min(100,Number(pct.overall||0))+'"><div><b>'+fmt(pct.overall||0)+'%</b><small>de la ronda</small></div></div>'+
  '<div class="scan-numbers"><div><b>'+fmt(count)+'</b><span>Detectadas</span></div><div><b>'+fmt(reviewed)+'</b><span>Revisadas</span></div>'+
  '<div><b>'+fmt(x.documented||0)+'</b><span>Corroboradas</span></div><div><b>'+fmt(saved)+'</b><span>Añadidas por ti</span></div></div></div>'+
- '<div class="scan-steps">'+phases.map((p,i)=>'<div class="scan-step '+(phase===p.stage&&!finished?'current':finished||phases.findIndex(k=>k.stage===phase)>i?'complete':'waiting')+'">'+
+ '<div class="scan-steps">'+phases.map((p,i)=>'<div class="scan-step '+((phase===p.stage||(phase==='discover'&&p.stage==='verify'&&reviewed>0))&&!finished?'current':finished||phases.findIndex(k=>k.stage===phase)>i?'complete':'waiting')+'">'+
  '<div class="scan-step-head"><span class="scan-step-icon">'+(finished||phases.findIndex(k=>k.stage===phase)>i?'✓':i+1)+'</span><strong>'+h(p.name)+'</strong><small>'+fmt(p.percent)+'%</small></div>'+
  '<div class="scan-line"><span style="width:'+Math.min(100,p.percent)+'%"></span></div><small class="scan-step-sub">'+h(p.detail)+'</small></div>').join('')+'</div>'+
  '<div class="scan-activity"><div><strong>Últimas verificaciones</strong><small>Datos contrastados durante esta investigación</small></div>'+
