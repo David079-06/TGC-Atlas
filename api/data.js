@@ -1,0 +1,2 @@
+export const access = 'admin';
+import {db} from 'hatchable';import {catalog,stores} from 'lib/catalog.js';export const methods=['GET'];export default async function(req,res){const {rows}=await db.query('SELECT DISTINCT ON (sku) sku, pen,stock_status,stock_qty,checked_at,verification,note FROM snapshots ORDER BY sku,checked_at DESC,id DESC');res.json({catalog,stores,snapshots:rows,updated:new Date().toISOString(),eurRate:null,note:'Precio ES: referencia no sincronizada. Precio PE automático únicamente cuando la extracción está verificada.'})}

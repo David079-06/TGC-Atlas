@@ -1,0 +1,2 @@
+export const access = 'admin';
+import {db} from 'hatchable';export const methods=['GET'];export default async function(req,res){const sku=String(req.query.sku||'').slice(0,80);const {rows}=await db.query('SELECT pen,stock_status,stock_qty,checked_at,verification FROM snapshots WHERE sku=$1 ORDER BY checked_at DESC LIMIT 90',[sku]);res.json(rows.reverse())}
