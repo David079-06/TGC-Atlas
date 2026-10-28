@@ -3,7 +3,7 @@ import {processVerificationQueue} from 'lib/research-queue.js';
 import {processAreaRetry} from 'lib/research-area-retry.js';
 export const access='scheduler';
 export const methods=['POST'];
-// Five-minute safety net for jobs that outlive a browser session or scheduled one-shot.
+// Hourly fallback (hosting plan limit) for verification jobs that outlive a session.
 export default async function(req,res){
  const [reviews,areas]=await Promise.allSettled([
   processVerificationQueue(null,2),
