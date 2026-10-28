@@ -46,7 +46,27 @@ const shownShops=()=>{
  }
  return [...index.values()];
 };
-let discoverStatus='',coverage=null,areaToken=0,researchPages=1;
+let discoverStatus='',coverage=null,areaToken=0,researchPages=1,lastListMarkup='';
+function updateStoreList(node,markup){
+ if(lastListMarkup===markup&&node.childElementCount)return;
+ lastListMarkup=markup;
+ const template=document.createElement('template');
+ template.innerHTML=markup;
+ const previous=new Map([...node.querySelectorAll(':scope > [data-store]')].map(el=>[el.dataset.store,el]));
+ const fragment=document.createDocumentFragment();
+ for(const fresh of [...template.content.children]){
+  const current=fresh.dataset.store?previous.get(fresh.dataset.store):null;
+  if(current&&current.outerHTML===fresh.outerHTML){fragment.appendChild(current);continue}
+  if(!current&&fresh.dataset.store){
+   fresh.classList.add('just-added');
+   fresh.addEventListener('animationend',()=>fresh.classList.remove('just-added'),{once:true});
+  }
+  fragment.appendChild(fresh);
+ }
+ const scroll=node.scrollTop;
+ node.replaceChildren(fragment);
+ node.scrollTop=scroll;
+}
 async function refreshResearch(triggerPlace=null){
  if(!country){researchedShops=[];coverage=null;renderList();return}
  const token=++areaToken,where={country,city};
@@ -200,7 +220,8 @@ function renderList(){
   return !search||norm(s.name+' '+(s.city||'')+' '+(countries[s.country]?.[0]||'')).includes(norm(search));
  }).sort((a,b)=>Number(b.selected)-Number(a.selected)||
    ({green:2,yellow:1,red:0}[trustOf(b).level]||0)-({green:2,yellow:1,red:0}[trustOf(a).level]||0)||
-   Number(trustOf(b).review?.count||0)-Number(trustOf(a).review?.count||0)||
+   Number(!!trustOf(b).checkedAt)-Number(!!trustOf(a).checkedAt)||
+   (Date.parse(b.last_seen||b.lastSeen||0)||0)-(Date.parse(a.last_seen||a.lastSeen||0)||0)||
    a.name.localeCompare(b.name,'es'));
  const node=$('#store-list');if(!node)return;
  const area=city?' en '+city:country?' en '+(countries[country]?.[0]||country):' en todos los países';
@@ -209,21 +230,27 @@ function renderList(){
  if(summary){summary.innerHTML=h(discoverStatus||(city?'La exploración de esta ciudad se ejecuta por zonas. Las tiendas online sin ciudad registrada aparecen en el nivel de país.':'Fuentes disponibles: tiendas incorporadas, conectores revisados e investigación geográfica parcial.'))+
  (country?' <span class="store-autoscan-label"><span class="store-autoscan-dot"></span>Actualización automática</span>':'')+
  (country&&coverage?.total>researchedShops.length?' <button type="button" id="store-more">Mostrar más tiendas ('+fmt(coverage.total-researchedShops.length)+' restantes)</button>':'');}
- node.innerHTML=all.length?all.map(s=>{
+ const markup=all.length?all.map(s=>{
   const source=['osm','researched'].includes(s.discovery)?'· <span class="source-tag">Temporal · '+h(s.source||'Fuente pública')+'</span>':
    s.discovery==='known_connector'?'· <span class="source-tag">Conector disponible</span>':
    '· <span class="source-tag">Guardada</span>';
   const labels=s.storeType==='physical'?'Física':s.storeType==='hybrid'?'Online y física':'Online';
   const trust=trustOf(s);
-  return '<button type="button" data-store="'+h(s.id)+'" class="store-item'+(selected===s.id?' current':'')+'">'+
+  const reviewed=!!(trust.checkedAt||s.verification?.last_checked_at);
+  const stage=reviewed?(trust.level==='green'?'Identidad corroborada':s.verification?.website_reachable===true?'Web consultada · falta corroborar':'Revisión inconclusa'):
+   'Pendiente de revisión';
+  const stageClass=reviewed?'checked':'pending';
+  return '<button type="button" data-store="'+h(s.id)+'" class="store-item'+(selected===s.id?' current':'')+'" aria-pressed="'+(selected===s.id)+'">'+
    '<span class="store-item-row"><strong>'+h(s.name)+'</strong>'+badge(s)+'</span>'+
    '<span class="store-item-description">'+h(s.city||s.country)+' · '+h(labels)+' '+source+'</span>'+
+   '<span class="store-review-stage '+stageClass+'"><span class="store-stage-dot" aria-hidden="true"></span>'+h(stage)+(reviewed?' · '+h(time(trust.checkedAt||s.verification?.last_checked_at)):'')+'</span>'+
    '<span class="store-item-meta trust-list-meta"><span>'+h(trust.summary||'Identidad pendiente de contrastar')+'</span>'+
    (trust.review?'<span>★ '+Number(trust.review.rating).toFixed(1)+' / 5 · '+fmt(trust.review.count)+' opiniones</span>':'')+
    '</span></button>';
  }).join(''):'<div class="store-empty">'+
   (city?'Todavía no hay comercios documentados para '+h(city)+'. Puedes añadir tiendas reales por URL.':
-  'No hay comercios en este filtro. Puedes añadir uno mediante su web real.')+'</div>';
+  'Aún no hay resultados en este filtro. La búsqueda seguirá incorporando tiendas a medida que las encuentre.')+'</div>';
+ updateStoreList(node,markup);
 }
 function renderRecs(){
  const target=$('#store-recs');if(!target)return;
@@ -402,7 +429,11 @@ function wire(){
 async function init(){
  if(initialized||!$('#store-app'))return;initialized=true;
  wire();
- try{await loadCountryOptions();await getStores();shell()}catch(e){$('#store-app').innerHTML='<div class="store-empty">No se puede cargar el directorio privado. '+h(e.message)+'</div>'}
+ await loadCountryOptions();
+ let loadError=null;
+ try{await getStores()}catch(e){loadError=e;shops=[];savedShops=[]}
+ shell();
+ if(loadError)note('No se pudieron recuperar Mis tiendas. Puedes seguir investigando países; se volverá a intentar automáticamente: '+String(loadError.message||loadError));
  // El estado se actualiza sin intervención del usuario y sin recargar el mapa.
  setInterval(()=>{
   if(document.visibilityState==='hidden'||!country)return;
