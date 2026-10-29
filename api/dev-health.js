@@ -14,7 +14,9 @@ export default async function(req,res){
   (SELECT COUNT(*)::integer FROM research_verify_queue WHERE status='done') AS verification_completed,
   (SELECT COUNT(*)::integer FROM research_verify_queue WHERE status='failed') AS verification_exhausted,
   (SELECT COUNT(*)::integer FROM research_verify_queue q LEFT JOIN discovered_shops s ON s.id=q.shop_id WHERE s.id IS NULL) AS orphan_queue,
-  (SELECT COUNT(*)::integer FROM research_area_retries WHERE status='retry') AS geographic_retry_pending`);
+  (SELECT COUNT(*)::integer FROM research_area_retries WHERE status='retry') AS geographic_retry_pending,
+  (SELECT COUNT(*)::integer FROM research_geo_cache WHERE expires_at>NOW()) AS cached_geographic_areas,
+  (SELECT COUNT(*)::integer FROM research_geo_cache WHERE expires_at<=NOW()) AS expired_geographic_cache`);
  const c=r.rows[0]||{};
  return res.json({
   ok:Number(c.orphan_reviews||0)===0&&Number(c.orphan_queue||0)===0,
@@ -24,7 +26,9 @@ export default async function(req,res){
    temporary_candidates:Number(c.temporary_candidates||0),planned_areas:Number(c.planned_areas||0),
    verification_pending:Number(c.verification_pending||0),verification_completed:Number(c.verification_completed||0),
    verification_exhausted:Number(c.verification_exhausted||0),orphan_queue:Number(c.orphan_queue||0),
-   geographic_retry_pending:Number(c.geographic_retry_pending||0)},
+   geographic_retry_pending:Number(c.geographic_retry_pending||0),
+   cached_geographic_areas:Number(c.cached_geographic_areas||0),
+   expired_geographic_cache:Number(c.expired_geographic_cache||0)},
   description:'Diagnóstico de mantenimiento, restringido al propietario. Las tiendas descubiertas no se guardan en Mis tiendas.',
   checkedAt:new Date().toISOString()
  });
