@@ -12,4 +12,4 @@ coverage/
 *.log
 /backups/
 /data-private/
-/AGENTS.md
+# AGENTS.md is intentionally versioned for Codex; never store credentials in it.
