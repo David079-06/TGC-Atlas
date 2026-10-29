@@ -1,5 +1,6 @@
 (()=>{'use strict';
 const $=s=>document.querySelector(s);
+const AUTO_DISCOVERY_ENABLED=false; // Buscador pospuesto hasta la fase final
 const h=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const safe=x=>{try{const u=new URL(x);return u.protocol==='https:'?u.href:null}catch{return null}};
 const fmt=x=>Number(x||0).toLocaleString('es-ES');
@@ -16,11 +17,12 @@ const norm=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLo
 const researchPhases={discover:'Buscando tiendas y fuentes',verify:'Comprobando webs y datos de comercios',finished:'Investigación de zonas finalizada'};
 function renderCountryInvestigation(){
  const el=$('#store-investigation-status');if(!el)return;
- if(!country){el.hidden=true;el.innerHTML='';return}
+ if(!AUTO_DISCOVERY_ENABLED||!country){el.hidden=true;el.innerHTML='';return}
  if(!window.TCGScanProgress)return;
  window.TCGScanProgress({el,countryName:countries[country]?.[0]||country,data:countryInvestigation,h,fmt,time});
 }
 async function loadCountryInvestigation(start=false,force=false){
+ if(!AUTO_DISCOVERY_ENABLED){countryInvestigation=null;renderCountryInvestigation();return}
  if(!country){countryInvestigation=null;nextResearchPollAt=0;renderCountryInvestigation();return}
  const code=country,token=++investigationToken;
  try{
@@ -81,6 +83,7 @@ function updateStoreList(node,markup){
  node.scrollTop=scroll;
 }
 async function refreshResearch(triggerPlace=null){
+ if(!AUTO_DISCOVERY_ENABLED)triggerPlace=null;
  if(!country){researchedShops=[];coverage=null;renderList();return}
  const token=++areaToken,where={country,city};
  if(triggerPlace){
@@ -144,7 +147,7 @@ function chooseLocation(place){
   window.TCGLocation?.updateCountry(country,city,place);
   renderList();renderRecs();renderDetail();
  }
- if(country){refreshResearch();loadCountryInvestigation(true)}
+ if(country){refreshResearch();if(AUTO_DISCOVERY_ENABLED)loadCountryInvestigation(true)}
  if(city)renderList();
 }
 function chooseStoreBySuggestion(id){
@@ -240,8 +243,11 @@ function renderList(){
  const area=city?' en '+city:country?' en '+(countries[country]?.[0]||country):' en todos los países';
  $('#store-count').textContent=all.length+' comercios'+area;
  const summary=$('#store-discovery-status');
- if(summary){summary.innerHTML=h(discoverStatus||(city?'La exploración de esta ciudad se ejecuta por zonas. Las tiendas online sin ciudad registrada aparecen en el nivel de país.':'Fuentes disponibles: tiendas incorporadas, conectores revisados e investigación geográfica parcial.'))+
- (country?' <span class="store-autoscan-label"><span class="store-autoscan-dot"></span>Actualización automática</span>':'')+
+ if(summary){summary.innerHTML=h(!AUTO_DISCOVERY_ENABLED?
+ (country==='PE'?'Selección provisional: Okamidex y La Mazmorra TCG. El buscador automático está pausado.':
+ 'Buscador automático pausado hasta terminar el resto de la aplicación. Se muestran los datos existentes.'):
+ (discoverStatus||(city?'La exploración de esta ciudad se ejecuta por zonas. Las tiendas online sin ciudad registrada aparecen en el nivel de país.':'Fuentes disponibles: tiendas incorporadas, conectores revisados e investigación geográfica parcial.')))+
+ (AUTO_DISCOVERY_ENABLED&&country?' <span class="store-autoscan-label"><span class="store-autoscan-dot"></span>Actualización automática</span>':'')+
  (country&&coverage?.total>researchedShops.length?' <button type="button" id="store-more">Mostrar más tiendas ('+fmt(coverage.total-researchedShops.length)+' restantes)</button>':'');}
  const markup=all.length?all.map(s=>{
   const source=['osm','researched'].includes(s.discovery)?'· <span class="source-tag">Temporal · '+h(s.source||'Fuente pública')+'</span>':
@@ -275,7 +281,7 @@ function renderRecs(){
  const verified=shownShops().filter(s=>trustOf(s).level==='green'&&trustOf(s).recommended)
   .sort((a,b)=>Number(trustOf(b).review?.count||0)-Number(trustOf(a).review?.count||0)).slice(0,8);
  if(!verified.length){
-  target.innerHTML='<p class="store-empty">Todavía no hay tiendas de esta zona con pruebas suficientes para recomendarlas. Se están investigando las candidatas, pero una dirección o una web accesible no acreditan que una compra sea segura.</p>';
+  target.innerHTML='<p class="store-empty">Todavía no hay tiendas de esta zona con pruebas suficientes para recomendarlas. El buscador está pausado por ahora; una web accesible no demuestra que una compra sea segura.</p>';
   return;
  }
  target.innerHTML=verified.map((s,i)=>{
@@ -458,7 +464,7 @@ async function init(){
  if(loadError)note('No se pudieron recuperar Mis tiendas. Puedes seguir investigando países; se volverá a intentar automáticamente: '+String(loadError.message||loadError));
  // El estado se actualiza sin intervención del usuario y sin recargar el mapa.
  setInterval(()=>{
-  if(document.visibilityState==='hidden'||!country||Date.now()<nextResearchPollAt)return;
+  if(!AUTO_DISCOVERY_ENABLED||document.visibilityState==='hidden'||!country||Date.now()<nextResearchPollAt)return;
   nextResearchPollAt=Date.now()+15000;
   loadCountryInvestigation();
  },10000);
