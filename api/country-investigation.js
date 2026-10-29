@@ -1,4 +1,5 @@
 import {db,scheduler} from 'hatchable';
+import {AUTO_DISCOVERY_ENABLED,directoryNotice} from 'lib/directory-mode.js';
 import {supportedCountry} from 'lib/country-investigation.js';
 import {prepareCountryAreas} from 'lib/country-areas.js';
 import {seedFreeKnownShops} from 'lib/free-shop-leads.js';
@@ -9,6 +10,7 @@ export default async function(req,res){
  const body=req.method==='POST'?(typeof req.body==='string'?JSON.parse(req.body):req.body||{}):req.query||{};
  const country=codeOf(body.country);
  if(!supportedCountry(country))return res.status(400).json({error:'País no admitido'});
+ if(!AUTO_DISCOVERY_ENABLED)return res.json({...await status(country),paused:true,started:false,message:directoryNotice});
  if(req.method==='GET')return res.json(await status(country));
  if(body.action!=='start')return res.status(400).json({error:'Acción incorrecta'});
  const force=body.force===true;
