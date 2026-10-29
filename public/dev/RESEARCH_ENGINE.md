@@ -1,34 +1,46 @@
-# Motor de investigación de tiendas — TCG Atlas
+# TCG Atlas · Investigación de tiendas sin servicios de pago
 
-## Qué hace
+## Política: coste externo cero
 
-- Explora zonas planificadas por país o ciudad. La cobertura **no** constituye un censo completo.
-- Usa Photon (OpenStreetMap) como fuente geográfica rápida. Overpass/OpenStreetMap se procesa como fuente complementaria lenta en trabajos independientes, con cuotas. **Photon y Overpass consultan la misma base OSM: no son dos fuentes independientes de fiabilidad comercial.**
-- Ofrece una integración comercial **opcional** con la API oficial de Brave Search para descubrir dominios y posibles tiendas online. Se activa cuando el propietario introduce su clave desde *Setup* de Hatchable; no funciona sin conexión.
-- Deduplica candidatos por identificador OSM, dominio normalizado y nombre con proximidad geográfica, sin fusionar automáticamente sucursales lejanas. Conserva en `research_candidate_sources` la procedencia de cada hallazgo, separada de la evidencia externa de fiabilidad.
-- Cola `research_verify_queue`: permite como máximo dos verificaciones simultáneas por lote, reclama trabajos de forma atómica, evita duplicados concurrentes y reintenta errores temporales hasta cuatro veces con demoras crecientes. Los fallos no convierten una tienda en fraudulenta.
-- Cola `research_area_retries`: reintenta individualmente fuentes o zonas fallidas. Los proveedores tienen presupuesto diario y pausas compartidas en `research_source_budget`.
-- Guarda resultados de investigación como **candidatos temporales durante 24 horas**, con su fuente. Solo se incorporan a `store_registry` al pulsar expresamente *Añadir a Mis tiendas*.
-- Muestra fichas y estados conforme llegan, sin esperar a que termine el país, y mantiene los resultados existentes ante errores de proveedores.
+- No se conecta a Brave Search ni a ningún buscador comercial de pago.
+- El proyecto no requiere tarjetas bancarias, claves comerciales, compras de créditos ni suscripciones nuevas.
+- Fuentes públicas: OpenStreetMap consultado con Photon y Overpass, más los dominios de comercios ya configurados en los conectores del proyecto.
+- Photon es un **servidor de demostración con disponibilidad no garantizada**. La app limita el consumo por debajo de sus propios presupuestos de seguridad: hasta **48 consultas por día**, con intervalo mínimo de **180 segundos**, compartidos entre todos los países.
+- Overpass se usa exclusivamente como complemento en cola: máximo **6 consultas por día**, intervalo mínimo de **30 minutos**. Tras varios errores consecutivos se pausa temporalmente. Su API pública puede estar saturada.
+- No se usan servicios públicos de Nominatim para búsqueda masiva o sistemática de comercios.
+- Las consultas y la actualización son conservadoras para mantener el proyecto dentro de los recursos gratuitos de alojamiento, aunque **el proveedor de hosting podría cambiar condiciones o límites**.
 
-## Límites comprobados
+## Funcionamiento
 
-1. El plan actual de Hatchable solo admite tareas periódicas **cada hora**. La comprobación activa también programa trabajos individuales mientras exista investigación en curso.
-2. Overpass público puede responder con 429, 502 o timeout. No se le pueden exigir tiempos de respuesta garantizados. Las consultas costosas se realizan fuera del cursor principal.
-3. Brave Search requiere una clave propia, configuración voluntaria y tiene tarifas/cuotas del proveedor. La clave **no se incluye en GitHub** ni se envía al navegador.
-4. No se raspan masivamente sitios que impidan la extracción, no se evitan CAPTCHA y no se inventan registros, reseñas, verificaciones ni cantidades.
-5. Verde requiere evidencia independiente contrastada; web accesible, mapa y nombre comercial no bastan. Un resultado no ofrece garantía de compra.
+1. Al elegir país se incorporan, si aún no están activos, los dominios ya configurados por la app como **candidatos no verificados**. No se afirma que tengan stock real ni reputación contrastada.
+2. El escaneo geográfico revisa las áreas planificadas con Photon; Overpass consulta una selección de áreas de forma independiente para no retrasar el avance principal.
+3. El sistema deduplica candidatos por el mismo identificador OSM, dominio o nombre y proximidad. Mantiene en `research_candidate_sources` todas las referencias del hallazgo, sin confundirlas con fuentes independientes de reputación.
+4. La tabla `research_geo_cache` evita repetir consultas de áreas ya revisadas durante **30 días**, incluidas las búsquedas sin resultados. Los candidatos descubiertos también permanecen en una caché temporal de hasta **30 días**.
+5. La tabla `research_verify_queue` permite reintentos separados por tienda, hasta cuatro intentos, con demoras crecientes. El navegador puede mostrar las fichas mientras siguen las verificaciones.
+6. `research_area_retries` conserva una fuente geográfica fallida o lenta sin reiniciar el país. `research_source_budget` guarda cuotas y pausas de forma compartida para que escaneos simultáneos no dupliquen consultas.
+7. Solo los comercios añadidos expresamente con el botón **Añadir a Mis tiendas** se almacenan en el directorio personal. La caché de descubrimiento no equivale a guardar permanentemente.
+8. Un sitio web accesible no basta para mostrar una etiqueta verde. Varias consultas a OpenStreetMap tampoco son pruebas independientes de seguridad.
 
-## Activar búsquedas comerciales
+## Límites reales
 
-En la configuración de Hatchable del proyecto, apartado *Setup*, añadir el secreto opcional `BRAVE_SEARCH_API_KEY`. El motor ya está preparado para consultar la API oficial con un presupuesto máximo conservador (24 solicitudes al día en la app). Con la clave ausente, este proveedor se muestra como pendiente de configuración y el directorio sigue funcionando con fuentes geográficas.
-
-Documentación del proveedor: https://api-dashboard.search.brave.com/api-reference/web/search/post
+- Ni OSM, Photon ni Overpass pueden garantizar que aparezcan **todas** las tiendas físicas y online del país. Muchos comercios no están registrados públicamente, carecen de etiquetas adecuadas o no tienen web en su ficha.
+- Los servidores comunitarios pueden bloquear o limitar grandes volúmenes. El escáner se detiene cuando agota su presupuesto y reanuda el trabajo sin perder el cursor.
+- El plan actual de Hatchable permite las tareas **recurrentes cada hora**. Las tareas activas pueden solicitar ejecuciones programadas adicionales dentro de los límites del plan.
+- No se evaden CAPTCHA ni se realiza extracción masiva en webs que la prohíben.
+- La clasificación de fiabilidad es documental y conservadora. No implica garantías de pago, entrega, stock ni inversión.
+- La ausencia de una tienda en los resultados no significa que no exista; la ausencia de pruebas tampoco implica fraude.
 
 ## Diagnóstico
 
-- `/api/dev-health`: diagnósticos solo para el propietario (candidatas, colas, trabajos atascados, referencias huérfanas).
-- `/api/country-investigation?country=PE`: estado del escaneo, fuentes, coberturas y cola.
-- `/api/discovery?country=PE`: tiendas temporales con estado de revisión.
-- `/api/jobs/research-maintenance`: recuperación periódica de colas (solo scheduler).
-- Los límites de tiempo por red y la calidad de un proveedor pueden cambiar; ningún escáner puede prometer encontrar todas las tiendas del país.
+- `GET /api/dev-health`: resultados temporales, colas, trabajos atascados y consistencia de datos (solo propietario).
+- `GET /api/country-investigation?country=PE`: avance del país, fuentes gratuitas, sus cuotas y colas.
+- `GET /api/discovery?country=PE`: comercios temporales con su procedencia, etiqueta y estado de verificación.
+- `POST /api/jobs/research-maintenance`: recuperación de colas y limpieza de caché (solo tarea programada).
+
+## Fuentes y condiciones
+
+- Photon: https://github.com/komoot/photon (servidor de demostración; uso razonable, sin garantías)
+- Overpass: https://wiki.openstreetmap.org/wiki/Overpass_API
+- OpenStreetMap / ODbL: https://www.openstreetmap.org/copyright
+
+El objetivo es obtener resultados progresivos y útiles **sin contratar APIs de pago**, no simular una cobertura que los datos gratuitos no permiten.
