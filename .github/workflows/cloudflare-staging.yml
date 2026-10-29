@@ -27,5 +27,7 @@ jobs:
         run: npm --prefix cloudflare run check
       - name: Verify anonymous routes fail closed
         run: npm --prefix cloudflare test
+      - name: Check D1-compatible schema with synthetic records
+        run: python3 cloudflare/tests/schema-smoke.py
       - name: Verify no production secrets
         run: npm run check
