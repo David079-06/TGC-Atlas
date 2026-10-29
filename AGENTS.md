@@ -43,5 +43,11 @@ Secuencia sugerida: (1) extraer lógica de dominio independiente, (2) pruebas,
 (4) proteger las APIs, (5) migrar rutas y cron una a una,
 (6) probar el frontend completo, (7) auditar costes y seguridad, (8) pasar a producción solo tras aprobación.
 
+## Entrega de cambios al propietario
+- En cada entrega con cambios, incluir el enlace real para abrir la aplicación y aclarar si corresponde a producción o a un entorno privado de pruebas. Indicar qué cambios están desplegados y cuáles solo están en GitHub.
+- Si la URL de la aplicación no está disponible o verificada, decirlo y solicitarla; no inventar dominios ni presentar el enlace del repositorio o una dirección localhost como si fueran la aplicación.
+- Guardar los cambios en commits con etiquetas Conventional Commits (`feat`, `fix`, `docs`, `test`, `refactor`, `chore`, etc.) y publicarlos en una rama del repositorio `David079-06/TGC-Atlas`, respetando cambios ajenos. Incluir enlace a la rama o a los commits y los resultados de las pruebas. Si la publicación falla, informar del bloqueo sin afirmar que los commits están en GitHub.
+- La autorización para publicar commits no autoriza fusionar ramas, desplegar, cambiar la privacidad ni modificar la producción en Hatchable.
+
 ## Primer mensaje para Codex
 "Lee AGENTS.md, docs/CODEX_MASTER_PROMPT.md, docs/PRODUCT_REQUIREMENTS.md, docs/TOOLING_AND_PLUGINS.md y docs/CODEX_HANDOFF.md. Ejecuta npm run verify. Comienza por auditar la implementación existente y crear un inventario de módulos completos/parciales/pendientes. Sigue las fases del documento maestro. No cambies Hatchable ni despliegues Cloudflare hasta validar autenticación, paridad y cuotas gratuitas. Trabaja con tests y commits en una rama."
