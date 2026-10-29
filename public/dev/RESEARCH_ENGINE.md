@@ -1,5 +1,7 @@
 # TCG Atlas · Investigación de tiendas sin servicios de pago
 
+**Estado provisional:** búsqueda y verificación automáticas pausadas hasta la fase final del proyecto. En Perú se muestra únicamente una selección inicial de dos tiendas: Okamidex y La Mazmorra TCG. Esto no supone recomendar ni certificar su seguridad. Los resultados de otros países no se han eliminado y los comercios guardados por el usuario permanecen intactos. Para reanudar el buscador se debe activar `AUTO_DISCOVERY_ENABLED` en `lib/directory-mode.js` y revisar la política de fuentes.
+
 ## Política: coste externo cero
 
 - No se conecta a Brave Search ni a ningún buscador comercial de pago.
