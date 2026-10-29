@@ -1,0 +1,15 @@
+{
+  "name": "tcg-atlas",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Development and test harness for the private TCG Atlas app (Hatchable remains production until migrated)",
+  "scripts": {
+    "check": "node tests/check-source.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "verify": "npm run check && npm test"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}
