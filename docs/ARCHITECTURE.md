@@ -6,7 +6,7 @@ Directorio privado para investigar comercios Pokémon TCG. La aplicación difere
 
 ## Entorno
 
-Hatchable sirve directamente archivos en `public/` (sin proceso de compilación), publica rutas desde `api/`, ejecuta módulos compartidos en `lib/`, aplica migraciones SQL y ejecuta una tarea horaria descrita en `hatchable.toml`.
+Hatchable sirve actualmente los archivos de `public/` (sin compilación), publica rutas desde `api/`, ejecuta módulos de `lib/`, aplica migraciones PostgreSQL y tareas horarias. Es la producción actual, no un servicio portable automáticamente. Para Codex y Cloudflare, consulta [CODEX_HANDOFF.md](./CODEX_HANDOFF.md).
 
 ## Frontend
 
@@ -34,11 +34,12 @@ No se añaden recursos a la lista personal durante una búsqueda. Solo el botón
 
 ## Datos y privacidad
 
-- `discovered_shops`: caché temporal (24 horas). No forma parte de la lista personal.
-- `discovered_shop_evidence`: pruebas ligadas a candidatas temporales; se limpian al caducar.
+- `discovered_shops`: caché temporal (hasta 30 días). No forma parte de la lista personal.
+- `discovered_shop_evidence`: verificaciones técnicas previas de candidatas; no tienen prioridad frente al expediente documental universal.
 - `country_search_areas`: coordenadas de planificación, sin comercios.
 - `country_investigations`: progreso por país; no representa un censo exhaustivo.
-- `store_registry`: comercios guardados expresamente por el usuario. Puede conservar una ficha física sin web y un resumen de las pruebas en el momento de guardarla.
+- `store_registry`: comercios guardados expresamente por el usuario; las etiquetas se evalúan desde `shop_verification_reports` también para esta lista.
+- `shop_verification_reports`: expediente documental por país y dominio con fuentes, ubicaciones, registros secundarios y estado técnico separado. `lib/store-verification.js` determina verde, amarillo y rojo de manera uniforme.
 - `market_offers`: catálogo histórico separado del módulo Tiendas. Nunca publicar su contenido como archivo del repositorio.
 
 Las rutas para datos son `access='admin'`; las tareas programadas usan `access='scheduler'`. Mantener el proyecto en modo personal/privado aunque el código fuente se publique.
@@ -46,3 +47,9 @@ Las rutas para datos son `access='admin'`; las tareas programadas usan `access='
 ## Límites conocidos
 
 Las fuentes geográficas abiertas no sustituyen una búsqueda general de comercios online ni permiten afirmar que se encontraron todas las tiendas de un país. Los porcentajes indican avance de las áreas planificadas, no cobertura nacional. Las etiquetas no constituyen garantías de compra.
+## Decisiones vigentes antes de pasar a Codex
+
+- La búsqueda y verificación automáticas de nuevas tiendas están pausadas. `AUTO_DISCOVERY_ENABLED=false` en `lib/directory-mode.js`; se permite la revisión técnica manual de una tienda existente.
+- Perú mantiene por ahora solo Okamidex y La Mazmorra TCG como tiendas candidatas iniciales. No se añaden otras automáticamente.
+- Una web accesible no equivale a verificación de compras. Un resultado verde significa identidad y actividad comercial corroboradas por pruebas de distinta procedencia.
+- El repositorio incluye `AGENTS.md`, pruebas `npm run verify` y guía `docs/CODEX_HANDOFF.md`. La rama `codex/cloudflare-free-migration` prepara un prototipo de migración cerrado, no desplegado.
