@@ -46,3 +46,33 @@
 - OpenStreetMap / ODbL: https://www.openstreetmap.org/copyright
 
 El objetivo es obtener resultados progresivos y útiles **sin contratar APIs de pago**, no simular una cobertura que los datos gratuitos no permiten.
+
+## Criterio universal de verificación comercial (v83+)
+
+**Fuente única de verdad:** `shop_verification_reports`, indexada por país y dominio normalizado o referencia física. La misma lógica `evaluateVerification` se ejecuta al listar tiendas descubiertas, tiendas guardadas y conectores, sin etiquetas distintas para una misma identidad.
+
+Se comprueban por separado:
+
+1. **Identidad legal:** nombre, identificador fiscal/mercantil, fuente y estado. Los registros secundarios se diferencian de una consulta directa a un organismo oficial. La presencia de un identificador en el propio sitio no es una verificación oficial.
+2. **Locales y modalidades:** venta online indicada por catálogo; local físico declarado por el comercio; presencia física contrastada por un proveedor/directorio independiente. Se distingue la dirección legal de un establecimiento abierto al público y se muestran las diferentes sucursales.
+3. **Contacto y condiciones:** teléfono, correo, domicilio, términos, envíos, devoluciones y reglas de preventas. Son datos declarados, no pruebas automáticas de cumplimiento.
+4. **Referencias externas:** fuente, emisor, URL, fecha y afirmación concreta. Photon y Overpass comparten origen OSM, por lo que no cuentan como dos referencias independientes. Varias páginas del mismo comercio tampoco.
+5. **Opiniones y transacciones:** sin muestra independiente contrastada, no se inventan reseñas, puntuaciones, entregas, seguridad de cobros ni stock.
+6. **Disponibilidad técnica:** una comprobación manual puede volver a visitar páginas públicas del mismo dominio HTTPS, con pocos accesos y caché de seis horas. Un HTTP 403/429/timeout no convierte una tienda en fraudulenta ni borra las fuentes documentales.
+
+### Etiquetas
+
+- **Verde** = identidad comercial y actividad/localización respaldadas por la web propia más una fuente de registro y una fuente externa diferente que confirme actividad o local. **No certifica una compra segura ni recomienda automáticamente una tienda.**
+- **Amarillo** = información insuficiente o todavía sin contraste independiente, aunque la web o el catálogo funcionen.
+- **Rojo** = únicamente cuando exista evidencia oficial comprobada de un riesgo comercial grave y vigente; no se usa para errores técnicos, precios altos ni pocas reseñas.
+
+Este método se aplica sin reglas especiales por país. Los identificadores locales (RUC, CIF, RFC, VAT, etc.) se registran en un campo genérico y siempre se indica qué autoridad se ha consultado realmente.
+
+### Dos primeras fichas documentadas (29/10/2026)
+
+- **Okamidex**: sitio propio con catálogo y dos establecimientos, segundo local declarado; Datos Perú para el RUC 20614610159 (fuente secundaria, no consulta SUNAT) y GOSU como fuente externa para la ubicación de Miraflores.
+- **La Mazmorra TCG**: sitio propio con catálogo y tienda, políticas de preventa y razón social; Datos Perú para el RUC 20607953903 (fuente secundaria); GOSU y TCG Binder para la dirección de Surco.
+
+Ambas quedan con identidad corroborada documentalmente, valoración de compra aún no auditada y sin puntuación de reseñas inventada. Las fuentes permanecen enlazadas y fechadas en cada ficha.
+
+**La búsqueda de nuevas tiendas sigue pausada:** comprobar expresamente la web de una tienda ya incluida no reactiva el descubrimiento nacional.
