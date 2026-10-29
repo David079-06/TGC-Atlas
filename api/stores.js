@@ -2,11 +2,12 @@ import {db} from 'hatchable';
 import {sourceForHost} from 'lib/store-adapters.js';
 import {acceptableCountry,safeUrl} from 'lib/store-validation.js';
 import {storesQuery,toStore} from 'lib/store-presenter.js';
+import {enrichWithVerification,verificationKey,evaluateVerification} from 'lib/store-verification.js';
 export const access='admin';export const methods=['GET','POST'];
 export default async function(req,res){
  if(req.method==='GET'){
   const compact=String(req.query?.compact||'')==='1';
-  const rows=await db.query(compact?`SELECT s.*,h.last_attempt AS source_last_attempt,h.last_success,h.last_error FROM store_registry s LEFT JOIN shop_scan_health h ON h.merchant=s.id ORDER BY s.country,s.name`:storesQuery),shops=rows.rows.map(toStore);
+  const rows=await db.query(compact?`SELECT s.*,h.last_attempt AS source_last_attempt,h.last_success,h.last_error FROM store_registry s LEFT JOIN shop_scan_health h ON h.merchant=s.id ORDER BY s.country,s.name`:storesQuery),shops=await enrichWithVerification(rows.rows.map(toStore));
   return res.json({shops,checkedAt:new Date().toISOString(),counts:{all:shops.length,followed:shops.filter(s=>s.selected).length},
    note:'Los colores evalúan documentación y frescura de datos, no garantizan seguridad comercial. Las tiendas pendientes no reciben lecturas automáticas.'});
  }
@@ -18,11 +19,13 @@ export default async function(req,res){
    FROM discovered_shops WHERE id=$1 AND country=$2 AND expires_at>NOW()`,[candidateId,requested]);
   const c=result.rows[0];if(!c)return res.status(404).json({error:'La investigación temporal caducó. Vuelve a buscar esa tienda.'});
   const validSite=safeUrl(c.website||'');
-  const verification=(await db.query('SELECT website_reachable,website_note,last_checked_at,verification_level,independent_sources FROM discovered_shop_evidence WHERE shop_id=$1',[c.id])).rows[0]||{};
-  const sources=Array.isArray(verification.independent_sources)?verification.independent_sources:[];
-  const corroborated=verification.verification_level==='documented'&&sources.length>=2;
-  const level=corroborated?'documented':verification.last_checked_at?'reviewed':'pending';
-  const label=corroborated?'Identidad corroborada':verification.last_checked_at?'Revisada · faltan pruebas':'Sin revisar · por comprobar';
+  const key=verificationKey(c);
+  const dossier=(await db.query('SELECT * FROM shop_verification_reports WHERE verification_key=$1',[key])).rows[0]||null;
+  const trust=evaluateVerification(dossier);
+  const sources=trust.sources||[];
+  const level=trust.level==='green'?'documented':'pending';
+  const label=trust.label;
+  const verification={last_checked_at:trust.checkedAt,website_note:trust.summary};
   if(validSite){
    const already=await db.query('SELECT id FROM store_registry WHERE country=$1 AND host=$2 AND selected=TRUE LIMIT 1',[requested,validSite.host]);
    if(already.rows.length)return res.json({ok:true,id:already.rows[0].id,country:requested,alreadyAdded:true,message:'Esta tienda ya está en tu directorio.'});
