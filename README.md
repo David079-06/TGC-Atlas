@@ -31,4 +31,12 @@ El proyecto se despliega con Hatchable sin compilación. El cambio debe superar 
 
 Los commits seguirán Conventional Commits. Para publicar, crear primero un repositorio público y autorizar la conexión con GitHub. Los despliegues de Hatchable **no** sincronizan automáticamente sus archivos con GitHub; consultar [GITHUB_SETUP.md](./docs/GITHUB_SETUP.md).
 
-Antes de un repositorio público se deben revisar dependencias vendorizadas y atribuciones cartográficas, y excluir datos operativos, credenciales y el manifiesto `AGENTS.md` autogenerado.
+Al editar un repositorio público deben excluirse datos operativos, credenciales y volcados; `AGENTS.md` contiene únicamente instrucciones de desarrollo y se versiona deliberadamente.
+
+## Desarrollo con Codex (preparado)
+
+El repositorio incluye [AGENTS.md](./AGENTS.md) y [la guía de traspaso](./docs/CODEX_HANDOFF.md). En **Codex Cloud** hay que seleccionar este repositorio y publicar el entorno; la conexión del repositorio a esta conversación no crea automáticamente ese entorno.
+
+Requiere Node 22. Sin instalar dependencias: `npm run verify` ejecuta comprobaciones de código y tests de las etiquetas de tiendas. [GitHub Actions](./.github/workflows/verify.yml) las ejecuta en cada cambio.
+
+**Producción continúa en Hatchable.** Las rutas `api/` importan el runtime `hatchable` y la base actual es PostgreSQL: NO se pueden ejecutar como backend Cloudflare sin adaptar autenticación, consultas y tareas. La migración a Cloudflare Workers Free + D1 se hará primero en una rama aislada. Sin activación de servicios de pago, sin nuevas tiendas en Perú y sin reanudar el buscador automático.
