@@ -11,7 +11,7 @@ JP:['Japón',[129,30,146,46]],FR:['Francia',[-5.8,41,10.2,51.5]],DE:['Alemania',
 GB:['Reino Unido',[-8.4,49.5,2.1,59]],AR:['Argentina',[-75,-56,-53,-21]]};
 let shops=[],savedShops=[],cityPlaces=[],researchedShops=[],country='',city='',selected='',search='',filter='all',typeFilter='all',initialized=false,
  working=false,noticeTimer=null;
-let siteChecks=new Map(),countryInvestigation=null,investigationToken=0;
+let siteChecks=new Map(),countryInvestigation=null,investigationToken=0,nextResearchPollAt=0;
 const norm=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('es');
 const researchPhases={discover:'Buscando tiendas y fuentes',verify:'Comprobando webs y datos de comercios',finished:'Investigación de zonas finalizada'};
 function renderCountryInvestigation(){
@@ -21,7 +21,7 @@ function renderCountryInvestigation(){
  window.TCGScanProgress({el,countryName:countries[country]?.[0]||country,data:countryInvestigation,h,fmt,time});
 }
 async function loadCountryInvestigation(start=false,force=false){
- if(!country){countryInvestigation=null;renderCountryInvestigation();return}
+ if(!country){countryInvestigation=null;nextResearchPollAt=0;renderCountryInvestigation();return}
  const code=country,token=++investigationToken;
  try{
   const url='/api/country-investigation';
@@ -30,13 +30,22 @@ async function loadCountryInvestigation(start=false,force=false){
   if(country!==code||token!==investigationToken)return;
   const previous=countryInvestigation;
   countryInvestigation=data;renderCountryInvestigation();
+  const due=Date.parse(data.job?.next_attempt||0),now=Date.now();
+  const scanning=['queued','running','partial','limited'].includes(data.job?.status);
+  const paused=Number.isFinite(due)&&due>now+60000;
+  nextResearchPollAt=now+(scanning&&!paused?12000:120000);
   const oldQueue=previous?.verificationQueue||{},newQueue=data.verificationQueue||{};
   const changed=!!previous&&(previous.totalCandidates!==data.totalCandidates||
     previous.reviewed!==data.reviewed||previous.documented!==data.documented||
     oldQueue.done!==newQueue.done||oldQueue.retry!==newQueue.retry||
-    oldQueue.running!==newQueue.running||oldQueue.failed!==newQueue.failed);
-  if(data.started||changed)refreshResearch();
- }catch(e){if(country===code&&token===investigationToken){countryInvestigation={job:{status:'limited',last_note:'El agente de investigación no está disponible ahora.',last_error:String(e.message||e)}};renderCountryInvestigation()}}
+    oldQueue.running!==newQueue.running||oldQueue.failed!==newQueue.failed||
+    previous.job?.cursor!==data.job?.cursor||
+    previous.job?.checked_sites!==data.job?.checked_sites);
+  if(start||data.started||changed)refreshResearch();
+ }catch(e){if(country===code&&token===investigationToken){
+  nextResearchPollAt=Date.now()+60000;
+  countryInvestigation={job:{status:'limited',last_note:'El agente de investigación no está disponible ahora.',last_error:String(e.message||e)}};renderCountryInvestigation()
+ }}
 }
 const matchesCity=s=>!city||(s.city&&norm(s.city)===norm(city))||(s.address&&norm(s.address).includes(norm(city)));
 const inArea=s=>(!country||s.country===country)&&matchesCity(s);
@@ -449,14 +458,15 @@ async function init(){
  if(loadError)note('No se pudieron recuperar Mis tiendas. Puedes seguir investigando países; se volverá a intentar automáticamente: '+String(loadError.message||loadError));
  // El estado se actualiza sin intervención del usuario y sin recargar el mapa.
  setInterval(()=>{
-  if(document.visibilityState==='hidden'||!country)return;
+  if(document.visibilityState==='hidden'||!country||Date.now()<nextResearchPollAt)return;
+  nextResearchPollAt=Date.now()+15000;
   loadCountryInvestigation();
- },6000);
+ },10000);
  // La base de tiendas guardadas se consulta con menor frecuencia; el escaneo no depende de ella.
  setInterval(()=>{
   if(document.visibilityState==='hidden'||working)return;
   getStores().then(()=>{window.TCGLocation?.updateOptions({shops:shownShops()});renderList();renderRecs();}).catch(()=>{});
- },60000);
+ },180000);
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();
