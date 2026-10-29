@@ -1,0 +1,33 @@
+name: Cloudflare staging checks (no deploy)
+on:
+  pull_request:
+    paths:
+      - 'cloudflare/**'
+      - 'docs/CLOUDFLARE_MIGRATION.md'
+      - '.github/workflows/cloudflare-staging.yml'
+  push:
+    branches: [codex/cloudflare-free-migration]
+    paths:
+      - 'cloudflare/**'
+      - 'docs/CLOUDFLARE_MIGRATION.md'
+      - '.github/workflows/cloudflare-staging.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  staging:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check minimal Worker source
+        run: npm --prefix cloudflare run check
+      - name: Verify anonymous routes fail closed
+        run: npm --prefix cloudflare test
+      - name: Check D1-compatible schema with synthetic records
+        run: python3 cloudflare/tests/schema-smoke.py
+      - name: Verify no production secrets
+        run: npm run check
