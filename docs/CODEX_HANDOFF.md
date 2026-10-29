@@ -2,6 +2,13 @@
 
 **Fecha de preparación:** 2026-10-29. **GitHub:** https://github.com/David079-06/TGC-Atlas
 
+## Dónde está el encargo completo para Codex
+- **`docs/CODEX_MASTER_PROMPT.md`:** prompt listo para pegar en Codex Cloud.
+- **`docs/PRODUCT_REQUIREMENTS.md`:** todas las ideas y el orden acordado: tiendas, productos, inversión, reventa, preventas, fuentes y UX.
+- **`docs/TOOLING_AND_PLUGINS.md`:** complementos conectados, alternativas gratuitas y herramientas de pruebas.
+- **`AGENTS.md`:** normas que Codex debe aplicar al trabajar en el repositorio.
+- **PR #1** `codex/cloudflare-free-migration`: prototipo de migración cerrado, *no* apto para producción.
+
 ## Lo que está preparado
 - El repositorio del proyecto es accesible a Codex Cloud tras la conexión de GitHub.
 - `AGENTS.md` contiene decisiones del producto, reglas de seguridad, costes y pruebas.
@@ -16,7 +23,8 @@
 4. Usar Node 22; instalación: **no necesita instalación de paquetes** para las pruebas de la fase actual. Validación: `npm run verify`.
 5. Revisar el entorno, guardarlo y publicarlo desde Codex Cloud; iniciar una tarea con el mensaje de `AGENTS.md`.
 6. Trabajar con ramas y pull requests, **sin dar acceso a credenciales de Hatchable o de la base de datos de producción**.
-7. Para Cloudflare, conectar el repositorio en la consola Cloudflare **solo cuando exista un adaptador funcional y protegido**.
+7. Pegar el encargo de `docs/CODEX_MASTER_PROMPT.md` como primera tarea. Seleccionar `main` para leer toda la especificación; la rama de migración está separada.
+8. Para Cloudflare, conectar el repositorio en la consola Cloudflare **solo cuando exista un adaptador funcional y protegido**.
 
 ## Estado de la migración
 La migración es un proyecto aparte; no está terminada hasta demostrar:
@@ -30,7 +38,7 @@ La migración es un proyecto aparte; no está terminada hasta demostrar:
 - pruebas repetibles y posibilidad de rollback a Hatchable.
 
 ## Complementos
-**GitHub** es imprescindible (ya conectado en este chat). **Figma** ya está conectado y es útil cuando se rediseñe la interfaz. **Context7** es opcional para consultar documentación reciente (tiene nivel gratuito); nunca hace falta contratar un plan de pago para utilizar el proyecto. No existe actualmente en este chat una conexión directa para desplegar en Cloudflare.
+**GitHub** y **Figma** ya están conectados en el chat. **Superpowers** se ha ofrecido como complemento opcional para TDD/depuración; **Context7** se ofreció anteriormente para documentación reciente. Ninguno es un requisito para ejecutar las pruebas. Para elegir otras herramientas y revisar sus cuotas consulta `docs/TOOLING_AND_PLUGINS.md`. No hay conexión Cloudflare directa disponible en este chat. No existe actualmente en este chat una conexión directa para desplegar en Cloudflare.
 
 ## Advertencias
 - No incluir volcados reales de PostgreSQL en el repositorio público.
