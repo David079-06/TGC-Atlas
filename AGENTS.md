@@ -1,5 +1,12 @@
 # Instrucciones para Codex — TCG Atlas
 
+## Documentos obligatorios antes de editar
+- `docs/CODEX_MASTER_PROMPT.md` — encargo completo y orden de implementación.
+- `docs/PRODUCT_REQUIREMENTS.md` — ideas, módulos, UX, controles de stock y fuentes de precios.
+- `docs/TOOLING_AND_PLUGINS.md` — herramientas mínimas gratuitas y condiciones de uso.
+- `docs/CODEX_HANDOFF.md` — cómo preparar Codex Cloud y conservar producción.
+- `docs/CLOUDFLARE_MIGRATION.md` en `codex/cloudflare-free-migration` — migración segura no desplegada.
+
 ## Objetivo
 Continuar y mejorar el proyecto existente de Pokémon TCG. **No reconstruir desde cero** ni inventar tiendas, opiniones, precios, disponibilidad o registros fiscales. El código del repositorio se puede leer públicamente, pero la aplicación y sus datos operativos son **privados**.
 
@@ -37,4 +44,4 @@ Secuencia sugerida: (1) extraer lógica de dominio independiente, (2) pruebas,
 (6) probar el frontend completo, (7) auditar costes y seguridad, (8) pasar a producción solo tras aprobación.
 
 ## Primer mensaje para Codex
-"Lee AGENTS.md, docs/CODEX_HANDOFF.md y el repositorio. Ejecuta npm run verify. Prepara un plan de migración incremental a Cloudflare Workers Free y D1 sin alterar Hatchable ni descubrir más tiendas. Revisa primero autenticación, integridad de evidencias y equivalencias SQL. Implementa cada fase con pruebas y commits en una rama."
+"Lee AGENTS.md, docs/CODEX_MASTER_PROMPT.md, docs/PRODUCT_REQUIREMENTS.md, docs/TOOLING_AND_PLUGINS.md y docs/CODEX_HANDOFF.md. Ejecuta npm run verify. Comienza por auditar la implementación existente y crear un inventario de módulos completos/parciales/pendientes. Sigue las fases del documento maestro. No cambies Hatchable ni despliegues Cloudflare hasta validar autenticación, paridad y cuotas gratuitas. Trabaja con tests y commits en una rama."
