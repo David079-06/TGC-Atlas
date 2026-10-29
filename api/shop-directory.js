@@ -1,4 +1,5 @@
 import {db} from 'hatchable';
+import {PERU_VISIBLE_CANDIDATES} from 'lib/directory-mode.js';
 import {SOURCES} from 'lib/store-adapters.js';
 import {trustForShop} from 'lib/store-trust.js';
 export const access='admin';export const methods=['GET'];
@@ -10,7 +11,8 @@ export default async function(req,res){
  if(String(req.query?.include_connectors||'')!=='1')return res.json({shops:[],count:0,note:'Ninguna tienda precargada. Las tiendas se muestran cuando una investigación las encuentra o el usuario las añade.'});
  const saved=await db.query('SELECT id FROM store_registry');
  const selected=new Set(saved.rows.map(x=>x.id));
- const shops=Object.entries(SOURCES).filter(([id,s])=>(!country||s.country===country)&&!selected.has(id))
+ const shops=Object.entries(SOURCES).filter(([id,s])=>(!country||s.country===country)&&!selected.has(id)&&
+   (s.country!=='PE'||PERU_VISIBLE_CANDIDATES.includes('connector-'+id)))
   .map(([id,s])=>({
    id,name:s.name,country:s.country,city:s.city||null,trust:trustForShop(id),
    website:'https://'+s.host+'/',address:s.address||null,addressType:s.addressType||null,
