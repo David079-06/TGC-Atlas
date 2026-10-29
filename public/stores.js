@@ -5,6 +5,7 @@ const h=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt
 const safe=x=>{try{const u=new URL(x);return u.protocol==='https:'?u.href:null}catch{return null}};
 const fmt=x=>Number(x||0).toLocaleString('es-ES');
 const time=x=>{if(!x)return 'Pendiente';const d=new Date(x);return Number.isNaN(d.getTime())?'Pendiente':d.toLocaleString('es-ES',{dateStyle:'short',timeStyle:'short'})};
+const sourceDate=x=>/^\d{4}-\d{2}-\d{2}$/.test(String(x||''))?x.slice(8,10)+'/'+x.slice(5,7)+'/'+x.slice(0,4):time(x);
 const countries={PE:['Perú',[-82.3,-18.8,-68,0.4]],ES:['España',[-10.1,35.5,4.6,44.1]],
 MX:['México',[-119.5,13.5,-86.5,33]],CO:['Colombia',[-79.1,-4.7,-66.9,13.7]],
 CL:['Chile',[-76.5,-56.5,-65.4,-17.2]],US:['Estados Unidos',[-126,24,-66.8,49.8]],
@@ -202,7 +203,7 @@ function shell(){
  '<div class="store-list-column"><div class="store-list-head"><div><b>Tiendas en '+h(countries[country]?.[0]||'el mundo')+'</b><small id="store-count"></small></div>'+
  '<div class="store-list-filters"><select id="store-type-filter"><option value="all">Online y físicas</option><option value="online">Solo online</option><option value="physical">Solo físicas</option><option value="hybrid">Mixtas</option></select><select id="store-filter"><option value="all">Todas</option><option value="followed">Mis tiendas</option><option value="osm">Descubiertas</option><option value="corroborated">Identidad corroborada</option><option value="caution">Con precaución</option><option value="risk">Riesgo documentado</option></select></div></div>'+
  '<div id="store-list" class="store-list"></div><div id="store-discovery-status" class="store-discovery-status"></div></div></div>'+
- '<div class="stores-recommendations"><div class="stores-section-head"><div><div class="eyebrow">FIABILIDAD DOCUMENTADA</div><h2>Tiendas recomendadas en esta zona</h2><p>Selección por identidad corroborada, actividad comercial, referencias externas y opiniones cuando existan. No se utilizan datos del catálogo para evaluar la seguridad.</p></div></div><div class="trust-legend"><span class="trust-dot good">●</span>Identidad corroborada <span class="trust-dot warn">●</span>Precaución / aún no recomendada <span class="trust-dot risk">●</span>Riesgo grave documentado</div>'+
+ '<div class="stores-recommendations"><div class="stores-section-head"><div><div class="eyebrow">FIABILIDAD DOCUMENTADA</div><h2>Identidad comercial corroborada</h2><p>Tiendas con referencias documentales coincidentes. Esta sección no certifica pagos, pedidos ni entregas.</p></div></div><div class="trust-legend"><span class="trust-dot good">●</span>Identidad corroborada <span class="trust-dot warn">●</span>Precaución / aún no recomendada <span class="trust-dot risk">●</span>Riesgo grave documentado</div>'+
  '<p class="store-audit-status" id="store-audit-status" role="status" aria-live="polite">Selecciona un país para comprobar las webs de los comercios conocidos. La identidad y las reseñas se contrastan con fuentes independientes.</p><div class="store-recs" id="store-recs"></div></div><section id="store-detail" class="store-detail"></section>'+
  '<div id="store-notice" class="store-notice" role="status" aria-live="polite"></div>';
  renderList();renderRecs();renderDetail();renderCountryInvestigation();
@@ -255,19 +256,17 @@ function renderList(){
    '· <span class="source-tag">Guardada</span>';
   const labels=s.storeType==='physical'?'Física':s.storeType==='hybrid'?'Online y física':'Online';
   const trust=trustOf(s);
-  const reviewed=!!(trust.checkedAt||s.verification?.last_checked_at);
+  const reviewed=!!trust.checkedAt;
   const pendingState={queued:'En cola de verificación',running:'Verificando ahora',
    retry:'Reintento programado',failed:'Sin completar · requiere revisión'};
-  const stage=reviewed?(trust.level==='green'?'Identidad corroborada':
-   s.queueStatus==='retry'?'Verificación temporalmente limitada · reintento programado':
-   s.queueStatus==='failed'?'Verificación inconclusa · límite de reintentos':
-   s.verification?.website_reachable===true?'Web consultada · falta corroborar':'Revisión inconclusa'):
-   (pendingState[s.queueStatus]||'Pendiente de revisión');
+  const stage=reviewed?(trust.level==='green'?'Identidad y actividad respaldadas':
+   trust.level==='red'?'Riesgo respaldado por fuentes':'Expediente incompleto · comprobar fuentes'):
+   (pendingState[s.queueStatus]||'Pendiente de documentación');
   const stageClass=reviewed?'checked':'pending';
   return '<button type="button" data-store="'+h(s.id)+'" class="store-item'+(selected===s.id?' current':'')+'" aria-pressed="'+(selected===s.id)+'">'+
    '<span class="store-item-row"><strong>'+h(s.name)+'</strong>'+badge(s)+'</span>'+
    '<span class="store-item-description">'+h(s.city||s.country)+' · '+h(labels)+' '+source+'</span>'+
-   '<span class="store-review-stage '+stageClass+'"><span class="store-stage-dot" aria-hidden="true"></span>'+h(stage)+(reviewed?' · '+h(time(trust.checkedAt||s.verification?.last_checked_at)):'')+'</span>'+
+   '<span class="store-review-stage '+stageClass+'"><span class="store-stage-dot" aria-hidden="true"></span>'+h(stage)+(reviewed?' · '+h(time(trust.checkedAt)):'')+'</span>'+
    '<span class="store-item-meta trust-list-meta"><span>'+h(trust.summary||'Identidad pendiente de contrastar')+'</span>'+
    (trust.review?'<span>★ '+Number(trust.review.rating).toFixed(1)+' / 5 · '+fmt(trust.review.count)+' opiniones</span>':'')+
    '</span></button>';
@@ -278,10 +277,10 @@ function renderList(){
 }
 function renderRecs(){
  const target=$('#store-recs');if(!target)return;
- const verified=shownShops().filter(s=>trustOf(s).level==='green'&&trustOf(s).recommended)
+ const verified=shownShops().filter(s=>trustOf(s).level==='green')
   .sort((a,b)=>Number(trustOf(b).review?.count||0)-Number(trustOf(a).review?.count||0)).slice(0,8);
  if(!verified.length){
-  target.innerHTML='<p class="store-empty">Todavía no hay tiendas de esta zona con pruebas suficientes para recomendarlas. El buscador está pausado por ahora; una web accesible no demuestra que una compra sea segura.</p>';
+  target.innerHTML='<p class="store-empty">Todavía no hay comercios de esta zona con identidad respaldada por suficientes fuentes externas. Un catálogo disponible no es prueba de seguridad.</p>';
   return;
  }
  target.innerHTML=verified.map((s,i)=>{
@@ -290,7 +289,7 @@ function renderRecs(){
    '<span class="store-rec-num">'+String(i+1).padStart(2,'0')+'</span>'+
    '<span class="trust-rec-content"><b>'+h(s.name)+'</b><small>'+h(s.city||s.country)+' · '+h(t.label)+'</small>'+
    '<span class="trust-rec-note">'+h(t.summary)+'</span></span>'+
-   '<span class="trust-rec-rating">'+(t.review?'★ '+Number(t.review.rating).toFixed(1)+'/5 <small>'+fmt(t.review.count)+' opiniones</small>':'Documentada<small>Comprobar reseñas recientes</small>')+'</span></button>';
+   '<span class="trust-rec-rating">'+(t.review?'★ '+Number(t.review.rating).toFixed(1)+'/5 <small>'+fmt(t.review.count)+' opiniones</small>':'Identidad respaldada<small>Compra no certificada</small>')+'</span></button>';
  }).join('');
 }
 function updateMap(s){
@@ -299,57 +298,103 @@ function updateMap(s){
  text.textContent=loc?'Dirección publicada: '+s.address+(s.addressType==='pickup'?' (recogida)':''):'Mapa general; no se inventan ubicaciones de tiendas';
  link.href=loc?'https://www.openstreetmap.org/search?query='+encodeURIComponent(s.address):'https://www.openstreetmap.org/';
 }
+function storeTypeLabel(s,t){
+ const kind=t.verification?.storeType||'unknown',external=!!t.verification?.independentPhysicalLocation;
+ if(kind==='hybrid')return external?'Online y física · local contrastado':'Online y física · declarado por web';
+ if(kind==='physical')return external?'Física · local contrastado':'Física · local sin corroborar';
+ if(kind==='online')return 'Online · actividad publicada';
+ return s.storeType==='physical'?'Comercio físico según fuente · por confirmar':
+  'Modalidad de venta pendiente de comprobar';
+}
+function detailEvidence(s){
+ const t=trustOf(s),reg=t.registration||{},technical=t.verification||{};
+ const sourceLinks=(t.sources||[]).filter(x=>safe(x.url));
+ const list=(entries,fallback)=>entries?.length?entries.map(x=>'<li>'+h(x)+'</li>').join(''):
+  '<li>'+h(fallback)+'</li>';
+ const locations=(t.locations||[]).length?t.locations:[];
+ const addresses=locations.length?locations.map((loc,i)=>'<div class="store-audit-location">'+
+  '<div><strong>Local '+(i+1)+' · '+h(loc.district||loc.city||'Ubicación publicada')+'</strong>'+
+  '<span class="store-audit-location-status '+(loc.corroborated?'confirmed':'declared')+'">'+
+   h(loc.corroborated?'Coincidencia con fuente externa':'Declarado por la tienda; contraste pendiente')+'</span></div>'+
+  '<p>'+h(loc.address||'Dirección no indicada')+'</p>'+
+  (loc.schedule?'<small>'+h(loc.schedule)+'</small>':'')+
+  '</div>').join(''):
+  '<p>'+h(s.address||'La ubicación física no está documentada')+
+   '<small>Una dirección fiscal o una ubicación en mapas no confirma por sí sola un local abierto al público.</small></p>';
+ const registration=reg.identifier?
+  '<strong>'+h(reg.name||'Titular registrado')+'</strong>'+
+  '<span>'+h((s.country==='PE'?'RUC: ':'Identificador: ')+reg.identifier)+'</span>'+
+  '<span>'+h(reg.officialChecked?'Contrastado con registro oficial':'Datos registrados en fuente secundaria; verificación oficial pendiente')+'</span>'+
+  (safe(reg.officialCheckUrl)?'<a href="'+safe(reg.officialCheckUrl)+'" target="_blank" rel="noopener noreferrer">Consultar el registro oficial ↗</a>':''):
+  '<span>Razón social y registro todavía no corroborados.</span>'+((reg.publishedIdentifiers||[]).length?'<small>Identificadores detectados en la web (no verificados): '+h(reg.publishedIdentifiers.join(', '))+'</small>':'');
+ const contact=t.contact||{};
+ const contactHtml=(contact.email?'<span>'+h(contact.email)+'</span>':'')+
+  (contact.phone?'<span>'+h(contact.phone)+'</span>':'')+
+  (!contact.email&&!contact.phone?'<span>'+h(s.phone||'No se ha contrastado contacto directo')+'</span>':'');
+ const sourceHtml=sourceLinks.length?sourceLinks.map(x=>
+  '<div class="store-audit-source"><div><span class="store-audit-kind">'+
+  h(x.type==='comercio'?'Declaración del comercio':x.type==='oficial'?'Organismo público':'Fuente externa')+
+  '</span><strong>'+h(x.label||x.publisher)+'</strong></div>'+
+  '<p>'+h(x.finding||'Consultar la referencia original para conocer el dato respaldado')+'</p>'+
+  '<div><a target="_blank" rel="noopener noreferrer" href="'+safe(x.url)+'">Ver fuente original ↗</a>'+
+  (x.checkedAt?'<small>Consultada: '+h(sourceDate(x.checkedAt))+'</small>':'')+'</div></div>').join(''):
+  '<p>No hay referencias externas verificadas para esta tienda.</p>';
+ const technicalLine=technical.websiteCheckedAt?
+  (technical.technicalStatus==='accessible'?'Web accesible al comprobarla':
+    'Accesibilidad de la web no concluyente')+' · '+time(technical.websiteCheckedAt):
+  'Web aún sin comprobación técnica reciente';
+ const typeLabel=storeTypeLabel(s,t);
+ const discovered=s.discovery==='researched'||s.discovery==='osm';
+ const primaryAction=discovered?'<button type="button" data-action="add-candidate">＋ Añadir a Mis tiendas</button>':
+  s.discovery==='known_connector'?'<button type="button" data-action="add-known">＋ Añadir tienda</button>':
+  (s.selected?'<span class="store-audit-saved">✓ En Mis tiendas</span>':
+    '<button type="button" data-action="follow">＋ Seguir tienda</button>');
+ const linkHtml=safe(s.website)?'<a href="'+safe(s.website)+'" target="_blank" rel="noopener noreferrer">Visitar web ↗</a>':'';
+ const recheck=safe(s.website)?'<button type="button" data-action="verify-site" class="store-audit-check">↻ Comprobar web</button>':'';
+ const checked=t.checkedAt?time(t.checkedAt):'Sin expediente documental completo';
+ return '<div class="store-detail-head"><div><div class="eyebrow">EXPEDIENTE DE TIENDA · '+h(s.country)+'</div>'+
+  '<h2>'+h(s.name)+'</h2><div class="store-tags">'+badge(s)+
+  '<span class="store-tag subtle">'+h(typeLabel)+'</span></div></div>'+
+  '<div class="store-detail-actions"><button type="button" class="store-back" data-action="back">← Volver</button>'+
+  primaryAction+recheck+linkHtml+'</div></div>'+
+  '<div class="trust-verdict '+(t.level==='green'?'trust-positive':t.level==='red'?'trust-negative':'trust-caution')+'">'+
+   '<strong>'+h(t.label)+'</strong><p>'+h(t.summary)+'</p>'+
+   '<small>Última comprobación documental: '+h(checked)+
+   '. No certifica pagos, autenticidad del inventario ni entregas.</small></div>'+
+  '<div class="store-audit-overview">'+
+   '<div><span>Actividad comercial</span><strong>'+h(typeLabel)+'</strong></div>'+
+   '<div><span>Fuentes distintas</span><strong>'+fmt(technical.independentSources||0)+'</strong></div>'+
+   '<div><span>Registro oficial</span><strong>'+h(reg.officialChecked?'Consultado':'Pendiente')+'</strong></div>'+
+   '<div><span>Estado técnico</span><strong>'+h(technical.technicalStatus==='accessible'?'Web accesible':technical.technicalStatus==='unavailable'?'Sin respuesta':'Sin comprobar')+'</strong></div>'+
+  '</div>'+
+  '<div class="store-audit-section-grid">'+
+   '<section><h3>Identidad y registro</h3><div class="store-audit-facts">'+registration+'</div>'+
+   '<h3>Contactos publicados</h3><div class="store-audit-facts">'+contactHtml+'</div></section>'+
+   '<section><h3>Locales y puntos de atención</h3>'+addresses+'</section>'+
+  '</div>'+
+  '<div class="store-audit-section-grid">'+
+   '<section><h3>Datos respaldados</h3><ul>'+list(t.positives,'Faltan evidencias independientes.')+'</ul></section>'+
+   '<section><h3>Limitaciones y precauciones</h3><ul>'+list(t.cautions,'Las condiciones de compra no se han auditado completamente.')+'</ul></section>'+
+  '</div>'+
+  '<section class="store-audit-technical"><h3>Comprobación técnica independiente de la etiqueta</h3>'+
+  '<p>'+h(technicalLine)+'.</p>'+ 
+  '<p>Secciones comprobadas: '+fmt(technical.checkedPages?.length||0)+
+  ' · contacto '+h(technical.contactPageFound?'consultado':'no encontrado')+
+  ' · condiciones '+h(technical.termsPageFound?'consultadas en la web':technical.termsDocumented?'documentadas en fuentes':'sin comprobar')+'.</p>'+
+  (technical.websiteError?'<p class="research-error">'+h(technical.websiteError)+'</p>':'')+
+  '<p>Que la web cargue, acepte pagos o publique stock no demuestra por sí solo fiabilidad comercial.</p></section>'+
+  '<section class="store-audit-sources"><div><h3>Pruebas y procedencia</h3><p>Consulta las referencias originales. Varias páginas de un mismo comercio no son pruebas independientes.</p></div>'+
+  '<div class="store-audit-source-grid">'+sourceHtml+'</div></section>'+
+  '<div class="trust-footer-note">La misma evaluación documental se aplica a todos los países. Si falta evidencia, aparece precaución; un fallo de conexión no cambia una identidad corroborada.</div>';
+}
 function renderDetail(){
  const el=$('#store-detail');if(!el)return;
  const s=selectedStore();updateMap(s);
- if(s?.discovery==='osm'||s?.discovery==='researched'){renderOsmDetail(s);return}
- if(!s){
-  el.innerHTML='<div class="store-empty"><b>Elige una tienda para consultar su verificación.</b><p>Mostraremos su identidad, fuentes, reputación y avisos cuando estén contrastados.</p></div>';return;
- }
- const t=trustOf(s),connected=s.approvedHost&&s.autoEnabled&&s.selected;
- const src=(t.sources||[]).map(x=>safe(x.url)?'<a class="trust-source" href="'+safe(x.url)+'" target="_blank" rel="noopener noreferrer">'+h(x.label)+' ↗</a>':'').filter(Boolean).join('');
- const bullets=(arr,empty)=>arr?.length?arr.map(x=>'<li>'+h(x)+'</li>').join(''):'<li>'+empty+'</li>';
- const review=t.review&&safe(t.review.url)?
-  '<a href="'+safe(t.review.url)+'" target="_blank" rel="noopener noreferrer">★ '+Number(t.review.rating).toFixed(1)+'/5 · '+fmt(t.review.count)+' reseñas en '+h(t.review.source)+' ↗</a>':
-  '<span>Sin una muestra independiente suficiente para puntuar el servicio</span>';
- const checking=t.checkedAt?time(t.checkedAt+'T12:00:00Z'):'Aún no evaluado';
- el.innerHTML='<div class="store-detail-head"><div><div class="eyebrow">FICHA DE FIABILIDAD · TIENDA REAL</div><h2>'+h(s.name)+'</h2>'+
- '<div class="store-tags">'+badge(s)+'<span class="store-tag subtle">'+h(s.storeType==='hybrid'?'Online y física':s.storeType==='physical'?'Física':'Online')+'</span>'+
- '<span class="store-tag subtle">'+h(connected?'Seguimiento del comercio activo':s.discovery==='known_connector'?'Conector disponible':'Integración pendiente')+'</span></div></div>'+
- '<div class="store-detail-actions"><button type="button" class="store-back" data-action="back">← Volver a tiendas</button>'+
- '<button type="button" data-action="'+(s.discovery==='known_connector'?'add-known':'follow')+'" class="'+(s.selected?'store-following':'')+'">'+
- (s.discovery==='known_connector'?'＋ Añadir tienda':s.selected?'✓ Guardada':'＋ Seguir tienda')+'</button>'+
- (safe(s.website)?'<a href="'+safe(s.website)+'" target="_blank" rel="noopener noreferrer">Web oficial ↗</a>':'')+
- (s.selected?'<button type="button" class="store-delete" data-action="remove">Eliminar</button>':'')+'</div></div>'+
- '<div class="trust-verdict '+(t.level==='green'?'trust-positive':t.level==='red'?'trust-negative':'trust-caution')+'">'+
- '<strong>'+h(t.label)+'</strong><p>'+h(t.summary)+'</p><small>Última revisión documental: '+h(checking)+'. Nivel de confianza: '+h(t.confidence||'pendiente')+'. No es una certificación de seguridad ni una promesa de entrega.</small></div>'+
- '<div class="store-detail-grid"><div class="store-detail-info"><h3>Identidad y contacto</h3><dl>'+
- '<dt>País</dt><dd>'+h(countries[s.country]?.[0]||s.country)+'</dd>'+
- '<dt>Dirección</dt><dd>'+h(s.address||s.city||'No documentada')+'<small>'+h(s.addressType==='legal'?'Domicilio legal; no se confirma tienda abierta al público':s.addressType==='pickup'?'Punto de recogida publicado':s.addressType==='physical'?'Local indicado por el comercio':s.addressType==='reported'?'Dirección procedente de una fuente externa, todavía sin validación presencial':'Dirección publicada sin verificación presencial')+'</small></dd>'+
- '<dt>RUC / registro</dt><dd>'+h(t.ruc||'Sin identificación registral contrastada')+'</dd>'+
- '<dt>Contacto</dt><dd>'+(s.email?'<a href="mailto:'+h(s.email)+'">'+h(s.email)+'</a>':'No publicado')+(s.phone?' · '+h(s.phone):'')+'</dd>'+
- '<dt>Opiniones externas</dt><dd>'+review+'</dd><dt>Estado técnico de la web</dt><dd>'+h(s.siteCheck?.checked_at?(s.siteCheck?.reachable===true?'Web accesible al comprobarla':s.siteCheck?.reachable===false?'Web no accesible durante la comprobación':'Acceso limitado o no concluyente')+' · '+time(s.siteCheck.checked_at):'Pendiente de prueba de accesibilidad')+'<small>La accesibilidad no acredita identidad, reputación ni cumplimiento de pedidos.</small></dd></dl></div>'+
- '<div class="store-detail-analysis"><h3>Pruebas y advertencias</h3>'+
- '<div class="trust-evidence"><div><b>Datos respaldados</b><ul>'+bullets(t.positives,'Todavía no hay pruebas independientes suficientes.')+'</ul></div>'+
- '<div><b>Qué falta comprobar</b><ul>'+bullets(t.cautions,'No se han registrado advertencias concretas; sigue sin existir garantía de compra.')+'</ul></div></div>'+
- '<h4>Fuentes consultadas</h4><div class="trust-source-list">'+(src||'<span>Sin fuentes independientes verificadas.</span>')+'</div></div></div>'+
- '<div class="trust-footer-note">Las comprobaciones comerciales son diferentes del rastreo del catálogo. Una respuesta HTTPS o una API rápida no demuestran que una tienda sea segura. La investigación se actualiza conforme haya nuevas fuentes contrastables.</div>';
- renderList();
+ if(!s){el.innerHTML='<div class="store-empty"><b>Selecciona una tienda para ver sus pruebas.</b><p>Se mostrarán identidad, ubicaciones, datos legales, fuentes y limitaciones documentadas.</p></div>';return}
+ el.innerHTML=detailEvidence(s);
 }
 function renderOsmDetail(s){
- const t=trustOf(s);
- const discoveryLinks=(s.discoverySources||[]).filter(x=>safe(x.url))
-  .map(x=>'<a class="trust-source" target="_blank" rel="noopener noreferrer" href="'+safe(x.url)+'">'+h(x.label)+' ↗</a>').join('');
- $('#store-detail').innerHTML='<div class="store-detail-head"><div><div class="eyebrow">CANDIDATO · IDENTIDAD NO VERIFICADA</div><h2>'+h(s.name)+'</h2>'+
- '<div class="store-tags">'+badge(s)+'<span class="store-tag subtle">'+h(s.typeLabel||'Comercio físico')+'</span></div></div>'+
- '<div class="store-detail-actions"><button type="button" class="store-back" data-action="back">← Volver a tiendas</button>'+
- '<button type="button" data-action="add-candidate">＋ Añadir a Mis tiendas</button>'+ (safe(s.website)?'<a href="'+safe(s.website)+'" target="_blank" rel="noopener noreferrer">Web publicada ↗</a>':'')+
- (safe(s.sourceUrl)?'<a href="'+safe(s.sourceUrl)+'" target="_blank" rel="noopener noreferrer">Fuente: '+h(s.source||'localización')+' ↗</a>':'')+'</div></div>'+
- '<div class="trust-verdict '+(t.level==='green'?'trust-positive':'trust-caution')+'"><strong>'+h(t.label)+'</strong><p>'+h(t.summary)+'</p><small>Fuentes comprobadas: '+fmt(t.sources?.length||0)+' · '+h(t.checkedAt?'Última revisión: '+time(t.checkedAt):'Sin revisión documental completa')+'. Ninguna clasificación garantiza compras o entregas.</small></div>'+
- '<div class="store-detail-grid"><div class="store-detail-info"><h3>Información conocida</h3><p>'+h(s.address||s.city||'Ubicación no documentada')+'</p><p>'+h(s.phone||'Sin teléfono publicado')+'</p></div>'+
- '<div class="store-detail-analysis"><h3>Comprobaciones y pendientes</h3><p>Es necesario contrastar la identidad del titular, las condiciones comerciales y opiniones externas. No se obtiene una valoración de seguridad a partir de un mapa.</p><p><strong>Comprobación técnica:</strong> '+h(s.verification?.website_checked_at?(s.verification.website_reachable?'Web accesible':'No concluyente')+' · '+time(s.verification.website_checked_at):s.siteCheck?.checked_at?(s.siteCheck.reachable?'Web accesible':'No concluyente')+' · '+time(s.siteCheck.checked_at):'Pendiente o sin web autorizada')+'</p>'+(s.verification?'<p>'+h(s.verification.website_note||'')+'</p><p>Datos publicados detectados: '+h([s.verification.published_contact?'contacto':null,s.verification.published_conditions?'condiciones':null,s.verification.published_identity?'identificador legal sin contraste oficial':null].filter(Boolean).join(', ')||'ninguno de forma concluyente')+'.</p>':'')+'<p>Que una página responda no garantiza identidad, entregas ni pagos seguros.</p><h4>Fuentes independientes</h4><div class="trust-source-list">'+((t.sources||[]).filter(x=>safe(x.url)).map(x=>'<a class="trust-source" target="_blank" rel="noopener noreferrer" href="'+safe(x.url)+'">'+h(x.label)+' ↗</a>').join('')||'<span>Las fuentes externas suficientes todavía no están disponibles.</span>')+'</div>'+
- '<h4>Fuentes del descubrimiento</h4><p>Procedencia del hallazgo; varias lecturas de OSM no son comprobaciones independientes de seguridad.</p>'+
- '<div class="trust-source-list">'+(discoveryLinks||'<span>Consulta la fuente pública indicada en la cabecera.</span>')+'</div></div></div>';
+ const el=$('#store-detail');if(el)el.innerHTML=detailEvidence(s);
 }
 async function loadCountryOptions(){
  try{
@@ -418,6 +463,17 @@ function wire(){
   const b=e.target.closest('[data-action]');if(!b)return;
   if(b.dataset.action==='back'){jumpTo('.store-list-column');return}
   const s=selectedStore();if(!s)return;
+  if(b.dataset.action==='verify-site'){
+   onAction(async()=>{
+    note('Comprobando la web pública de '+s.name+' sin modificar las pruebas independientes…');
+    const response=await post('/api/store-verification',{action:'check_web',id:s.id});
+    await getStores();
+    if(country)await refreshResearch();
+    renderList();renderRecs();renderDetail();
+    note(response.message||'Comprobación realizada; consulta las pruebas y la fecha de la ficha.');
+   });
+   return;
+  }
   if(b.dataset.action==='add-known'||b.dataset.action==='add-osm'){
    onAction(async()=>{
     if(!safe(s.website))throw Error('Esta tienda no tiene una web verificable');
