@@ -16,4 +16,6 @@ jobs:
         with:
           node-version: '22'
       - name: Check JavaScript syntax, local UI references and secret patterns
-        run: node tests/check-source.mjs
+        run: npm run check
+      - name: Verify shop trust, identity matching and country constraints
+        run: npm test
