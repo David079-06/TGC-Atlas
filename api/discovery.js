@@ -1,4 +1,5 @@
 import {db} from 'hatchable';
+import {AUTO_DISCOVERY_ENABLED,directoryNotice} from 'lib/directory-mode.js';
 import {zoneSeeds,AREA_CENTERS} from 'lib/discovery-zones.js';
 import {COUNTRY_CODES} from 'lib/country-codes.js';
 export const access='admin';export const methods=['GET','POST'];
@@ -7,7 +8,7 @@ const safeNum=(v,a,b)=>Number.isFinite(Number(v))&&Number(v)>=a&&Number(v)<=b;
 const clean=s=>String(s||'').trim().slice(0,90);
 async function snapshot(country,city,page=1){
  const areaFilter=city?"country=$1 AND lower(city)=lower($2)":"country=$1";
- const filters=city?"country=$1 AND expires_at>NOW() AND lower(city)=lower($2)":"country=$1 AND expires_at>NOW()";
+ const filters=(city?"country=$1 AND expires_at>NOW() AND lower(city)=lower($2)":"country=$1 AND expires_at>NOW()")+(country==='PE'?" AND id IN ('connector-okami','connector-mazmorra')":"");
  const args=city?[country,city]:[country];
  const [areas,totals,results]=await Promise.all([
   db.query(`SELECT id,city,status,discoveries,attempts,checked_at,last_error,next_attempt FROM discovery_areas
@@ -73,6 +74,7 @@ export default async function(req,res){
   const page=Math.max(1,Math.min(25,Number(body.page)||1));
   return res.json(await snapshot(country,city,page));
  }
+ if(!AUTO_DISCOVERY_ENABLED)return res.json({...await snapshot(country,city,1),added:0,paused:true,message:directoryNotice});
  const action=String(body.action||'');
  if(action==='follow')return res.status(400).json({error:'Para guardar una tienda debes pulsar Añadir a mi directorio desde su ficha'});
  // Las candidatas no se guardan en el directorio. Solo se añaden mediante una acción explícita.
