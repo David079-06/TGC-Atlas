@@ -2,6 +2,7 @@ import {db} from 'hatchable';
 import {PERU_VISIBLE_CANDIDATES} from 'lib/directory-mode.js';
 import {SOURCES} from 'lib/store-adapters.js';
 import {trustForShop} from 'lib/store-trust.js';
+import {enrichWithVerification} from 'lib/store-verification.js';
 export const access='admin';export const methods=['GET'];
 export default async function(req,res){
  const country=String(req.query?.country||'').toUpperCase();
@@ -22,6 +23,6 @@ export default async function(req,res){
    sourceUrl:s.evidence||'https://'+s.host+'/',
    note:'Conector disponible, aún no añadida. El catálogo se importa al guardar la tienda.'
   }));
- res.json({shops,coverage:'El directorio incluye tiendas con conectores revisados; no representa todas las tiendas online del país.',
+ res.json({shops:await enrichWithVerification(shops),coverage:'El directorio incluye tiendas con conectores revisados; no representa todas las tiendas online del país.',
   count:shops.length,checkedAt:new Date().toISOString()});
 }
