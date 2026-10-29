@@ -1,4 +1,5 @@
 import {db} from 'hatchable';
+import {enrichWithVerification} from 'lib/store-verification.js';
 import {AUTO_DISCOVERY_ENABLED,directoryNotice} from 'lib/directory-mode.js';
 import {zoneSeeds,AREA_CENTERS} from 'lib/discovery-zones.js';
 import {COUNTRY_CODES} from 'lib/country-codes.js';
@@ -59,7 +60,7 @@ async function snapshot(country,city,page=1){
    sourceUrl:s.source_url,typeLabel:s.shop_kind==='games'?'Juegos y cartas':'Comercio relacionado',
    note:'Ficha con fuentes documentadas. La accesibilidad no certifica compras ni entregas.'};
  });
- return {shops:data,total:totals.rows[0]?.total||0,pokemonIndicated:totals.rows[0]?.pokemon_indicated||0,
+ return {shops:await enrichWithVerification(data),total:totals.rows[0]?.total||0,pokemonIndicated:totals.rows[0]?.pokemon_indicated||0,
   areas:areas.rows,queued:areas.rows.filter(s=>['queued','running','partial'].includes(s.status)).length,
   completed:areas.rows.filter(s=>s.status==='completed').length,
   failed:areas.rows.filter(s=>['error','limited'].includes(s.status)).length,
